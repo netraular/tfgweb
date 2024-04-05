@@ -4,7 +4,7 @@
 <button id="generarAudioBtn" onclick="convertirTextoEnAudioAPI()">Generar Audio</button>
 
 <!-- Loading Spinner de Bootstrap -->
-<div id="loading-spinner" class="spinner-border" role="status" style="display: none;">
+<div id="loading-spinner1" class="spinner-border" role="status" style="display: none;">
     <span class="visually-hidden">Cargando...</span>
 </div>
 
@@ -15,7 +15,7 @@
 <script>
 function convertirTextoEnAudioAPI() {
     var texto = document.getElementById('textoParaAudioApi').value;
-    var loadingSpinner = document.getElementById('loading-spinner');
+    var loadingSpinner = document.getElementById('loading-spinner1');
     var generarAudioBtn = document.getElementById('generarAudioBtn');
     
     // Mostrar el spinner de carga

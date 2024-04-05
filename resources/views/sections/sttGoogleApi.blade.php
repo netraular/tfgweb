@@ -7,7 +7,7 @@
 </form>
 
 <!-- Loading Spinner de Bootstrap -->
-<div id="loading-spinner" class="spinner-border" role="status" style="display: none;">
+<div id="loading-spinner2" class="spinner-border" role="status" style="display: none;">
     <span class="visually-hidden">Cargando...</span>
 </div>
 
@@ -33,7 +33,7 @@
 function uploadAudio() {
     var audioInput = document.getElementById('audio-input');
     var audioFile = audioInput.files[0];
-    var loadingSpinner = document.getElementById('loading-spinner');
+    var loadingSpinner = document.getElementById('loading-spinner2');
     var upload_audio = document.getElementById('upload_audio');
     var recordBtn = document.getElementById('record-btn');
 
@@ -115,7 +115,7 @@ function stopRecording() {
 
 // Función para subir el audio grabado
 function uploadRecordedAudio(audioBlob) {
-    var loadingSpinner = document.getElementById('loading-spinner1');
+    var loadingSpinner = document.getElementById('loading-spinner2');
     var upload_audio = document.getElementById('upload_audio');
     var recordBtn = document.getElementById('record-btn');
 
