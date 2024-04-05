@@ -1,21 +1,33 @@
 <h2>Convertir texto en audio mediante server API</h2>
-<textarea id="textoParaAudio" rows="4" cols="50" placeholder="Introduce el texto aquí..."></textarea>
+<textarea id="textoParaAudioApi" rows="4" cols="50" placeholder="Introduce el texto aquí..."></textarea>
 <br>
-<button onclick="convertirTextoEnAudioAPI()">Generar Audio</button>
+<button id="generarAudioBtn" onclick="convertirTextoEnAudioAPI()">Generar Audio</button>
+
+<!-- Loading Spinner de Bootstrap -->
+<div id="loading-spinner" class="spinner-border" role="status" style="display: none;">
+    <span class="visually-hidden">Cargando...</span>
+</div>
+
 <br>
 <div id="audioContainer"></div> <!-- Contenedor para el reproductor de audio -->
 
 
 <script>
 function convertirTextoEnAudioAPI() {
-    var texto = document.getElementById('textoParaAudio').value;
+    var texto = document.getElementById('textoParaAudioApi').value;
+    var loadingSpinner = document.getElementById('loading-spinner');
+    var generarAudioBtn = document.getElementById('generarAudioBtn');
+    
+    // Mostrar el spinner de carga
+    loadingSpinner.style.display = 'block';
+    generarAudioBtn.style.display = 'none';
 
     // Crear un objeto FormData para enviar el texto
     var formData = new FormData();
     formData.append('texto', texto);
 
     // Realizar la llamada AJAX
-    fetch('/generar-audio', {
+    fetch('/ttsApi', {
         method: 'POST',
         body: formData,
         headers: {
@@ -24,6 +36,10 @@ function convertirTextoEnAudioAPI() {
     })
     .then(response => response.blob()) // Convertir la respuesta en un Blob
     .then(blob => {
+        // Ocultar el spinner de carga
+        loadingSpinner.style.display = 'none';
+        generarAudioBtn.style.display = 'inline';
+
         // Crear un URL para el Blob
         var url = window.URL.createObjectURL(blob);
         
@@ -44,6 +60,11 @@ function convertirTextoEnAudioAPI() {
         // Opcional: reproducir el audio automáticamente
         audioElement.play();
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        // Ocultar el spinner de carga
+        loadingSpinner.style.display = 'none';
+        generarAudioBtn.style.display = 'inline';
+        console.error('Error:', error)
+    });
 }
 </script>

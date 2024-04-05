@@ -8,23 +8,16 @@ use Symfony\Component\Process\Process;
 
 class TtsController extends Controller
 {
-    //
-    public function generarAudioApi(Request $request){
+    public function textToSpeechApi(Request $request){
         $texto = $request->input('texto');
         $nombreArchivoAudio = 'audio_generado';
-        $script=resource_path() . "/scripts/python/googleTts.py '{$texto}' '{$nombreArchivoAudio}'";
-        $comando = escapeshellcmd("python3 $script");
-        $process = new Process(explode(' ', $comando));
+        $process = new Process(['python3',resource_path().'/scripts/python/googleTts.py',escapeshellcmd($texto),escapeshellcmd($nombreArchivoAudio)]);
         $process->run();
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
-        $output = $process->getOutput();
-        dd($output);
-        return response()->json(['archivo' => $nombreArchivoAudio.'mp3']);
-
-        // $pathToFile = storage_path('audios/tts/output.mp3');
-        // return response()->download($pathToFile);
+        $pathToFile = storage_path("audios/tts/$nombreArchivoAudio.mp3");
+        return response()->download($pathToFile);
     }
 }
