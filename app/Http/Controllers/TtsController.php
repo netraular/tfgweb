@@ -20,4 +20,18 @@ class TtsController extends Controller
         $pathToFile = storage_path("audios/tts/$nombreArchivoAudio.mp3");
         return response()->download($pathToFile);
     }
+
+    public function textToSpeechLocal(Request $request){
+        $texto = $request->input('texto');
+        $nombreArchivoAudio = 'audio_generado';
+        $process = new Process(['python3',resource_path().'/scripts/python/localTts.py',escapeshellcmd($texto),escapeshellcmd($nombreArchivoAudio)]);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $pathToFile = storage_path("audios/tts/$nombreArchivoAudio.mp3");
+        return response()->download($pathToFile);
+    }
+    
 }

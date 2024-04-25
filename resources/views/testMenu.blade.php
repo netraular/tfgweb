@@ -17,6 +17,8 @@
         <button onclick="showFunctionalityWithId('functionalityType4')" > STT WebSpeech</button>
         <button onclick="showFunctionalityWithId('functionalityType5')" > TTS API</button>
         <button onclick="showFunctionalityWithId('functionalityType6')" > STT API</button>
+        <button onclick="showFunctionalityWithId('functionalityType7')" > local TTS</button>
+        <button onclick="showFunctionalityWithId('functionalityType8')" > local STT</button>
 
         <br><br>
         <div id="functionalityType1" style="display:none">    @include('sections.functionalityType1')</div>
@@ -25,6 +27,8 @@
         <div id="functionalityType4" style="display:none">    @include('sections.sttWebSpeech')</div>
         <div id="functionalityType5" style="display:none">    @include('sections.ttsGoogleApi')</div>
         <div id="functionalityType6" style="display:none">    @include('sections.sttGoogleApi')</div>
+        <div id="functionalityType7" style="display:none">    @include('sections.localTts')</div>
+        <div id="functionalityType8" style="display:none">    @include('sections.localStt')</div>
 
     </div>
     </div>

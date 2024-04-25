@@ -24,6 +24,8 @@ Auth::routes();
 Route::match(['get', 'post'],'/', [VirtualAssistantController::class, 'testMenu'])->name('/');
 Route::match(['get', 'post'],'/ttsApi', [TtsController::class, 'textToSpeechApi']);
 Route::match(['get', 'post'],'/sttApi', [SttController::class, 'speechToTextApi']);
+Route::match(['get', 'post'],'/ttsLocal', [TtsController::class, 'textToSpeechLocal']);
+Route::match(['get', 'post'],'/sttLocal', [SttController::class, 'speechToTextLocal']);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

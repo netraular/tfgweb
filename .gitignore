@@ -20,4 +20,3 @@ yarn-error.log
 /.vscode
 *.wav
 *.mp3
-/storage/audios/tts/*
