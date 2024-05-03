@@ -1,4 +1,5 @@
 <h2>Convertir texto en audio mediante WebSpeech</h2>
+<p>El audio será reproducido al generarlo.</p>
 <textarea id="textoParaAudio" rows="4" cols="50" placeholder="Introduce el texto aquí..."></textarea>
 <br>
 <button onclick="convertirTextoEnAudio()">Generar Audio</button>

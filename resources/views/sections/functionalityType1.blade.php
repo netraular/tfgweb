@@ -1,4 +1,4 @@
-<form method="POST" action="{{url('/')}}" class="form-inline" >
+<form method="POST" action="{{url('/testMenu')}}" class="form-inline" >
     {{ csrf_field() }}
     <input type="hidden" name="questionType" value="1">
     <div class="form-group mb-2">

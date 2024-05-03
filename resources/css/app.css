@@ -89,3 +89,11 @@ body {
         width: calc(100vw);
     }
 }
+
+/* Custom CSS for adjusting top navbar padding */
+.navbar {
+    transition: padding-left 0.3s ease;
+}
+.navbar-expanded {
+    padding-left: 240px; /* Adjust this value as needed */
+}

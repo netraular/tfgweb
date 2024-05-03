@@ -25,7 +25,7 @@
 
      
   <!-- Sidebar -->
-  <nav class="collapse d-lg-block sidebar collapse h-full pb-[150px] md:block" >
+  <nav id="navbarSupportedContent" class="collapse d-lg-block sidebar navbar-collapse" >
     <div id="sidenav-1" class="sidenav" role="navigation">
       <a class=" d-flex justify-content-center py-4" href="/">
         <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
@@ -47,31 +47,34 @@
   </nav>
   <!-- Sidebar -->
 
-  <!-- Navbar -->
 </head>
 <body>
     <div id="app" >
       <!--Main view-->
       <main role="main">
         
-        <nav class="ml-5 navbar navbar-expand-lg navbar-light fixed align-items-center" >
-          <!-- Container wrapper -->
-          <div class="container-fluid ">
-
-            <!-- Left Side Of Navbar -->
-            <!-- Toggler -->
-            <button class="btn d-block d-lg-none">
-              <i class="bi bi-list fs-2"></i>
+      <!-- Navbar -->
+        <nav class="ml-5 navbar navbar-expand navbar-light fixed" >
+          <div class="container-fluid d-flex justify-content-between">
+            
+            <!-- Sidebar Toggler -->
+            <button class="btn d-block d-lg-none navbar-toggler me-3" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-2 "></i>
             </button>
-            <!-- Search form -->
-            <div class="input-group">
-              <button class="btn btn-outline-secondary" type="button"><i class="bi bi-mic fs-4"></i></button>
-              <input type="text" class="form-control" placeholder="¿Que cosas puedes hacer?" >
-              <button class="btn btn-outline-secondary" type="button"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
+
+            <!-- Chatbot form -->
+            <div class="navbar-brand flex-fill text-center">
+                <div class="input-group">
+                    <button class="btn btn-outline-secondary" type="button"><i class="bi bi-mic fs-4"></i></button>
+                    <input type="text" class="form-control" placeholder="¿Qué cosas puedes hacer?">
+                    <button class="btn btn-outline-secondary" type="button"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
+                </div>
             </div>
-                
+
             <!-- Right Side Of Navbar -->
-            <ul class="navbar-nav">
+            
+            <ul class="navbar-nav d-flex flex-row align-items-center">
+              
               <!-- Profile -->
               <li class="nav-item dropdown">
                   <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
@@ -83,11 +86,15 @@
                       <a class="dropdown-item" href="#">Salir</a>
                   </div>
               </li>
+
               <!-- General options -->
-              <li class="nav-item dropdown d-flex align-items-center">
+              <li class="nav-item dropdown">
                 <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
-                  <x-flag-country-gb height="20" /> {{app()->getLocale()}}
-                </a>
+                @if(app()->getLocale() == 'en')
+                    <x-flag-country-gb height="20" />
+                @elseif(app()->getLocale() == 'es')
+                    <x-flag-country-es height="20" />
+                @endif                </a>
                 <div class="dropdown-menu dropdown-menu-end" >
                   <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'en']) }}">
                     <x-flag-country-gb height="20" /> English{!! app()->getLocale() == 'en' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
@@ -112,4 +119,18 @@
 
   </body>
 </html>
+<script>
+    // Add event listener to the sidebar toggle button
+    document.querySelector('.navbar-toggler').addEventListener('click', function() {
+        // Toggle the CSS class on the top navbar when the sidebar is toggled
+        document.querySelector('.navbar').classList.toggle('navbar-expanded');
+        // Change the icon based on the visibility of the sidebar
+        var icon = document.querySelector('.navbar-toggler i');
+        if (document.querySelector('.navbar').classList.contains('navbar-expanded')) {
+            icon.className = 'bi bi-arrow-bar-left fs-2';
+        } else {
+            icon.className = 'bi bi-list fs-2';
+        }
+    });
+</script>
 

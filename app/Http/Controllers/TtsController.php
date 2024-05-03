@@ -10,14 +10,14 @@ class TtsController extends Controller
 {
     public function textToSpeechApi(Request $request){
         $texto = $request->input('texto');
-        $nombreArchivoAudio = 'audio_generado';
+        $nombreArchivoAudio = date("Ymd");
         $process = new Process(['python3',resource_path().'/scripts/python/googleTts.py',escapeshellcmd($texto),escapeshellcmd($nombreArchivoAudio)]);
         $process->run();
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
-        $pathToFile = storage_path("audios/tts/$nombreArchivoAudio.mp3");
+        $pathToFile = storage_path("audios/tts/googleTts/$nombreArchivoAudio.mp3");
         return response()->download($pathToFile);
     }
 

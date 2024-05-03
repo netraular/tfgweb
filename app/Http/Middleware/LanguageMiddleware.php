@@ -15,7 +15,11 @@ class LanguageMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $language = session('language');
+        if(is_null(session('language'))){
+            $language='es';
+        }else{
+            $language = session('language');
+        }
         app()->setLocale($language);
         return $next($request);
     }
