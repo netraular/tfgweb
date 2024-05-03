@@ -27,18 +27,18 @@
   <!-- Sidebar -->
   <nav class="collapse d-lg-block sidebar collapse h-full pb-[150px] md:block" >
     <div id="sidenav-1" class="sidenav" role="navigation">
-      <a class=" d-flex justify-content-center py-4" href="#">
+      <a class=" d-flex justify-content-center py-4" href="/">
         <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
       </a>
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-3 mt-4 ">
-          <a href="#" class="list-group-item list-group-item-action py-2 active" >
+          <a href="/" class="list-group-item list-group-item-action py-2 {{ request()->is('/') ? 'active' : '' }}" >
             <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Principal</span>
           </a>
-          <a href="#" class="list-group-item list-group-item-action py-2 " >
+          <a href="/testMenu" class="list-group-item list-group-item-action py-2 {{ request()->is('testMenu') ? 'active' : '' }}" >
             <i class="fas fa-chart-area fa-fw me-3"></i><span>Zona test</span>
           </a>
-          <a href="#" class="list-group-item list-group-item-action py-2 ripple">
+          <a href="#" class="list-group-item list-group-item-action py-2 {{ request()->is('history') ? 'active' : '' }}">
             <i class="fas fa-lock fa-fw me-3"></i><span>Historial</span>
           </a>
         </div>
@@ -54,7 +54,7 @@
       <!--Main view-->
       <main role="main">
         
-        <nav class="ml-5 navbar navbar-expand-lg navbar-light fixed" >
+        <nav class="ml-5 navbar navbar-expand-lg navbar-light fixed align-items-center" >
           <!-- Container wrapper -->
           <div class="container-fluid ">
 
@@ -64,7 +64,7 @@
               <i class="bi bi-list fs-2"></i>
             </button>
             <!-- Search form -->
-            <div class="input-group mb-3">
+            <div class="input-group">
               <button class="btn btn-outline-secondary" type="button"><i class="bi bi-mic fs-4"></i></button>
               <input type="text" class="form-control" placeholder="¿Que cosas puedes hacer?" >
               <button class="btn btn-outline-secondary" type="button"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
@@ -84,16 +84,16 @@
                   </div>
               </li>
               <!-- General options -->
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown d-flex align-items-center">
                 <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-three-dots-vertical fs-2"></i>
+                  <x-flag-country-gb height="20" /> {{app()->getLocale()}}
                 </a>
                 <div class="dropdown-menu dropdown-menu-end" >
-                  <a class="dropdown-item" href="#">
-                    <x-flag-country-gb height="20" /> English<i class="bi bi-check-lg" style="color:green"></i>
+                  <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'en']) }}">
+                    <x-flag-country-gb height="20" /> English{!! app()->getLocale() == 'en' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
                   </a>
-                  <a class="dropdown-item" href="#">
-                    <x-flag-country-es height="20" /> Español<i class="bi bi-check"></i>
+                  <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'es']) }}">
+                    <x-flag-country-es height="20" /> Español{!! app()->getLocale() == 'es' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
                   </a>
                 </div>
               </li>
@@ -103,7 +103,7 @@
           </div>
         </nav>
 
-        <div class="container mt-5">
+        <div class="container mt-5 pt-5">
             @yield('content')
         </div>
       </main>
