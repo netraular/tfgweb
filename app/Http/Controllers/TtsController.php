@@ -24,7 +24,16 @@ class TtsController extends Controller
     public function textToSpeechLocal(Request $request){
         $texto = $request->input('texto');
         $nombreArchivoAudio = 'audio_generado';
+        $process=new Process(["echo","ola"]);
+        $result = $process->run();
+        dd($result->output());
+        
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        dd('a');
         $process = new Process(['python3',resource_path().'/scripts/python/localTts.py',escapeshellcmd($texto),escapeshellcmd($nombreArchivoAudio)]);
+        dump('python3',resource_path().'/scripts/python/localTts.py',escapeshellcmd($texto),escapeshellcmd($nombreArchivoAudio));
         $process->run();
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);

@@ -1,1 +1,91 @@
-body {background-color: rgb(233, 244, 250);}
+
+:root {
+    --background: #fff;
+    --foreground: #08080a;
+    --dark-accent: #141414;
+    --gray-dark: #f2f2f2;
+    --gray-medium: #f7f7f7;
+    --gray-light: #fcfcfc;
+    --light-background: #f2f2f2;
+    --card: #f2f2f2;
+    --card-foreground: #08080a;
+    --popover: #fff;
+    --popover-foreground: #08080a;
+    --primary: #17171b;
+    --primary-foreground: #f9f9f9;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #17171b;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #f4f4f5;
+    --accent-foreground: #17171b;
+    --destructive: #e44;
+    --destructive-foreground: #f9f9f9;
+    --create-background: #1b1b1b;
+    --border: #e3e3e7;
+    --input: #e3e3e7;
+    --ring: #17171b;
+    --radius: 0.5rem;
+    --brand-accent: #e30b5d;
+    --brand-red: #f44;
+    --brand-magenta: #e30b5d;
+    --brand-pink: #ffb4b4;
+    --brand-blue: #5ab1ff;
+    --brand-light-blue: #a0d2ff;
+    --brand-medium-view: #5eb2fb;
+    --brand-green: #8eff0b;
+}
+
+body {
+    background-color: var(--light-background);
+    color: var(--foreground);
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--background);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 240px;
+    z-index: 600;
+}
+.sidebar .active {
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.navbar{
+  background-color: var(--background);
+  position: fixed;
+  top: 0;
+}
+
+@media (min-width: 992px) {
+    main,
+    header,
+    #main-navbar {
+      padding-left: 240px;
+    }
+    .navbar{
+        width: calc(100vw - 240px);
+    }
+
+}
+
+@media (max-width: 991px) {
+
+    .navbar{
+        width: calc(100vw);
+    }
+}
