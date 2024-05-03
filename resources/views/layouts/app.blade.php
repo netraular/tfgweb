@@ -13,7 +13,8 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-
+    <!-- Web Icon -->
+    <link rel="icon" href="{{ url('favicon.png') }}">
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
@@ -27,7 +28,7 @@
   <nav class="collapse d-lg-block sidebar collapse h-full pb-[150px] md:block" >
     <div id="sidenav-1" class="sidenav" role="navigation">
       <a class=" d-flex justify-content-center py-4" href="#">
-        <img src="{{ asset('images/logoUab.png') }}" alt="UAB Logo" height="50"/>
+        <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
       </a>
       <div class="position-sticky">
         <div class="list-group list-group-flush mx-3 mt-4 ">
