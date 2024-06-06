@@ -43,6 +43,6 @@ def run_quickstart() -> speech.RecognizeResponse:
     # Detects speech in the audio file
     response = client.recognize(config=config, audio=audio)
     for result in response.results:
-        print(f"Transcript: {result.alternatives[0].transcript}")
+        print(f"{result.alternatives[0].transcript}")
 
 run_quickstart()

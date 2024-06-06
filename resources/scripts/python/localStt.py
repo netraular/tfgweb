@@ -25,5 +25,5 @@ options = {
 
 
 # Realizar la transcripción especificando el idioma
-result = model.transcribe("20240304100339-1605.mp3", **options)
+result = model.transcribe("./resources/scripts/python/output.wav", **options)
 print(result["text"])

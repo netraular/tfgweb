@@ -7,6 +7,11 @@ use App\Models\Simulacion;
 use App\Models\Trabajador;
 use App\Models\Proyecto;
 use App\Models\Material;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use App\Models\assistantHistory;
+
+use Illuminate\Support\Facades\DB;
 
 class VirtualAssistantController extends Controller
 {
@@ -57,5 +62,87 @@ class VirtualAssistantController extends Controller
                 return view('testMenu',compact('preguntas'));
                 break;
         }
+    }
+
+    public function main(Request $request){
+
+        $texto = $request->texto;
+
+        $assistantLog = new assistantHistory;
+        $assistantLog->question=$request->texto;
+        $assistantLog->save();
+
+        $scriptPath = resource_path().'/scripts/python/llama3api.py';
+
+
+        $process = new Process([
+            'sudo',
+            'python3',
+            $scriptPath,
+            escapeshellcmd($texto),
+        ]);
+        
+        $startTimer = microtime(true);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        $time_elapsed_secs = microtime(true) - $startTimer;
+
+        $answer = $process->getOutput();
+
+        $answer=str_replace("\n","",$answer);
+        $assistantLog->answerTime=$time_elapsed_secs;
+        $assistantLog->answer=$answer;
+        $assistantLog->save();
+        
+        
+        if($answer!="I don't know."){
+            $sql=$answer;
+            if($this->checkSqlIsSafe($sql)){
+                $results=json_encode(DB::select($sql));
+                $assistantLog->results=$results;
+                $assistantLog->save();
+            }else{
+                $results="Query voided";
+                $assistantLog->results=$results;
+                $assistantLog->save();
+            }
+        }
+
+        return response()->json($answer);
+    }
+
+    public function checkSqlIsSafe($sql){
+        $safe=true;
+        if(str_contains($sql, 'DELETE')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'UPDATE')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'TRUNCATE')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'ALTER')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'ADD')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'DROP')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'COMMIT')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'SET')){
+            $safe=false;
+        }
+        
+        if(!str_contains($sql, 'SELECT')){
+            $safe=false;
+        }
+        return $safe;
     }
 }

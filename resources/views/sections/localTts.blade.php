@@ -4,7 +4,7 @@
 <button id="generarAudioBtn2" onclick="convertirTextoEnAudioLocal()">Generar Audio</button>
 
 <!-- Loading Spinner de Bootstrap -->
-<div id="loading-spinner3" class="spinner-border" role="status" style="display: none;">
+<div id="loading-spinner4" class="spinner-border" role="status" style="display: none;">
     <span class="visually-hidden">Cargando...</span>
 </div>
 
@@ -15,7 +15,7 @@
 <script>
 function convertirTextoEnAudioLocal() {
     var texto = document.getElementById('textoParaAudioLocal').value;
-    var loadingSpinner = document.getElementById('loading-spinner3');
+    var loadingSpinner = document.getElementById('loading-spinner4');
     var generarAudioBtn = document.getElementById('generarAudioBtn2');
     
     // Mostrar el spinner de carga

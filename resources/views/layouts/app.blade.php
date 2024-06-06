@@ -23,6 +23,8 @@
 
 
 
+
+
      
   <!-- Sidebar -->
   <nav id="navbarSupportedContent" class="collapse d-lg-block sidebar navbar-collapse" >
@@ -38,8 +40,8 @@
           <a href="/testMenu" class="list-group-item list-group-item-action py-2 {{ request()->is('testMenu') ? 'active' : '' }}" >
             <i class="fas fa-chart-area fa-fw me-3"></i><span>Zona test</span>
           </a>
-          <a href="#" class="list-group-item list-group-item-action py-2 {{ request()->is('history') ? 'active' : '' }}">
-            <i class="fas fa-lock fa-fw me-3"></i><span>Historial</span>
+          <a href="/audioHistory" class="list-group-item list-group-item-action py-2 {{ request()->is('history') ? 'active' : '' }}">
+            <i class="fas fa-lock fa-fw me-3"></i><span>Historial voz</span>
           </a>
         </div>
       </div>
@@ -65,9 +67,149 @@
             <!-- Chatbot form -->
             <div class="navbar-brand flex-fill text-center">
                 <div class="input-group">
-                    <button class="btn btn-outline-secondary" type="button"><i class="bi bi-mic fs-4"></i></button>
-                    <input type="text" class="form-control" placeholder="¿Qué cosas puedes hacer?">
-                    <button class="btn btn-outline-secondary" type="button"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
+                  <div>
+                    <button id="record-btn-main" class="btn btn-outline-secondary" type="button" onclick="startRecordingMain()"><i class="bi bi-mic fs-4" ></i></button>
+                    <!-- Loading Spinner de Bootstrap -->
+                    <div id="loading-spinner2" class="spinner-border" role="status" style="display: none;">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+
+                    <!-- Botón para grabar audio -->
+                    <button id="upload_audio" hidden onclick="uploadAudio()">Subir Audio</button>
+
+
+
+                    <script>
+                      // Variables para la grabación de audio
+                      var mediaRecorder;
+                      var audioChunks = [];
+
+                      // Función para iniciar la grabación
+                      function startRecordingMain() {
+                          navigator.mediaDevices.getUserMedia({ audio: true })
+                              .then(stream => {
+                                  mediaRecorder = new MediaRecorder(stream);
+                                  mediaRecorder.start();
+
+                                  mediaRecorder.addEventListener('dataavailable', event => {
+                                      audioChunks.push(event.data);
+                                  });
+
+                                  mediaRecorder.addEventListener('stop', () => {
+                                      var audioBlob = new Blob(audioChunks);
+                                      uploadRecordedAudioMain(audioBlob);
+                                      audioChunks = [];
+                                      stream.getTracks().forEach( track => track.stop() ); // get all tracks from the MediaStream // stop each of them
+                                  });
+
+                                  // Cambiar el texto del botón y su función onclick
+                                  var recordBtn = document.getElementById('record-btn-main');
+                                  recordBtn.textContent = 'Detener Grabación';
+                                  recordBtn.onclick = stopRecordingMain;
+                              });
+                      }
+
+                      // Función para detener la grabación
+                      function stopRecordingMain() {
+                          mediaRecorder.stop();
+
+                          // Restablecer el botón de grabación
+                          var recordBtn = document.getElementById('record-btn-main');
+                          recordBtn.innerHTML = "<i class='bi bi-mic fs-4' ></i>";
+                          recordBtn.onclick = startRecordingMain;
+                      }
+
+                      // Función para subir el audio grabado
+                      function uploadRecordedAudioMain(audioBlob) {
+                          var loadingSpinner = document.getElementById('loading-spinner2');
+                          var upload_audio = document.getElementById('upload_audio');
+                          var recordBtn = document.getElementById('record-btn-main');
+
+                          // Mostrar el spinner de carga
+                          loadingSpinner.style.display = 'block';
+                          upload_audio.style.display = 'none';
+                          recordBtn.style.display = 'none';
+
+                          var formData = new FormData();
+                          formData.append('audio', audioBlob, 'grabacion.mp3');
+
+                          // Enviar el audio grabado al controlador mediante fetch
+                          fetch('/sttApi', {
+                              method: 'POST',
+                              body: formData,
+                              headers: {
+                                  'X-CSRF-TOKEN': '{{ csrf_token() }}', // Asegúrate de incluir el token CSRF de Laravel
+                              },
+                          })
+                          .then(response => response.json())
+                          .then(transcriptionText => {
+                              // Ocultar el spinner de carga
+                              loadingSpinner.style.display = 'none';
+                              upload_audio.style.display = 'inline';
+                              recordBtn.style.display = 'inline';
+                              // Mostrar la transcripción
+                              document.getElementById('promptInput').value = transcriptionText;
+                          })
+                          .catch(error => {
+                              // Ocultar el spinner de carga
+                              loadingSpinner.style.display = 'none';
+                              upload_audio.style.display = 'inline';
+                              recordBtn.style.display = 'inline';
+                              console.error('Error al subir la grabación:', error);
+                              alert('Error al subir la grabación.');
+                          });
+                      }
+                    </script>
+                  </div>
+                    <input type="text" class="form-control" id="promptInput" placeholder="¿Que datos tiene la tabla (Proyecto/Material/Trabajador/TrabajadoresDelProyecto) ?">
+                    <button id="startAssistantButton" class="btn btn-outline-secondary" type="button" onclick="startAssistant(this)"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
+                    <div id="loading-spinner3" class="spinner-border" role="status" style="border-radius: 50%;display: none;">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <script>
+                      // Función para subir el audio grabado
+                      function startAssistant(sendButton) {
+                          var loadingSpinner = document.getElementById('loading-spinner3');
+                          var text_prompt = document.getElementById('promptInput').value;
+                          var sendButton = document.getElementById('record-btn-main');
+                          var startAssistantButton = document.getElementById('startAssistantButton');
+
+                          // Mostrar el spinner de carga
+                          loadingSpinner.style.display = 'block';
+                          sendButton.style.display = 'none';
+                          startAssistantButton.style.display = 'none';
+
+                          var formData = new FormData();
+                          formData.append('texto', text_prompt);
+
+                          // Enviar el audio grabado al controlador mediante fetch
+                          fetch('/assistant', {
+                              method: 'POST',
+                              body: formData,
+                              headers: {
+                                  'X-CSRF-TOKEN': '{{ csrf_token() }}', // Asegúrate de incluir el token CSRF de Laravel
+                              },
+                          })
+                          .then(response => response.json())
+                          .then(assistantAnswer => {
+                              // Ocultar el spinner de carga
+                              loadingSpinner.style.display = 'none';
+                              sendButton.style.display = 'inline';
+                              startAssistantButton.style.display = 'inline';
+                              // Mostrar la transcripción
+                              // document.getElementById('divRespuesta').value = assistantAnswer;
+                              alert(assistantAnswer)
+                          })
+                          .catch(error => {
+                              // Ocultar el spinner de carga
+                              loadingSpinner.style.display = 'none';
+                              sendButton.style.display = 'inline';
+                              startAssistantButton.style.display = 'inline';
+                              console.error('Error al subir el text prompt:', error);
+                              alert('Error al ejecutar el asistente.');
+                          });
+                      }
+                    </script>
                 </div>
             </div>
 

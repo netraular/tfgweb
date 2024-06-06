@@ -5,6 +5,7 @@ use App\Http\Controllers\VirtualAssistantController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\SttController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\HistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,6 @@ use App\Http\Controllers\LanguageController;
 // });
 
 Auth::routes();
-Route::get('/', function () {
-    return view('testView');
-});
 
 Route::get('/change-language/{locale}', [LanguageController::class, 'languageSwitch'])->name('change.language');
 
@@ -35,5 +33,14 @@ Route::match(['get', 'post'],'/sttApi', [SttController::class, 'speechToTextApi'
 Route::match(['get', 'post'],'/ttsLocal', [TtsController::class, 'textToSpeechLocal']);
 Route::match(['get', 'post'],'/sttLocal', [SttController::class, 'speechToTextLocal']);
 
+Route::match(['get', 'post'],'/assistant', [VirtualAssistantController::class, 'main']);
+
+Route::match(['get', 'post'],'/audioHistory', [HistoryController::class, 'showAudioHistory']);
+Route::match(['get', 'post'],'/', [HistoryController::class, 'showAssistantHistory']);
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
