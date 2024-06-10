@@ -10,6 +10,8 @@ use App\Models\Material;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Models\assistantHistory;
+use App\Models\llmTest;
+use App\Models\llmTestAnswers;
 
 use Illuminate\Support\Facades\DB;
 
@@ -88,7 +90,6 @@ class VirtualAssistantController extends Controller
             throw new ProcessFailedException($process);
         }
         $time_elapsed_secs = microtime(true) - $startTimer;
-
         $answer = $process->getOutput();
 
         $answer=str_replace("\n","",$answer);
@@ -100,7 +101,15 @@ class VirtualAssistantController extends Controller
         if($answer!="I don't know."){
             $sql=$answer;
             if($this->checkSqlIsSafe($sql)){
-                $results=json_encode(DB::select($sql));
+                try {
+                    $results = json_encode(DB::select($sql));
+                } catch (\Exception $e) {
+                    // Handle the error
+                    Log::error('SQL query failed: ' . $e->getMessage());
+            
+                    // Optionally, set $results to a default value or null
+                    $results = "SQL query failed";
+                }
                 $assistantLog->results=$results;
                 $assistantLog->save();
             }else{
@@ -111,6 +120,58 @@ class VirtualAssistantController extends Controller
         }
 
         return response()->json($answer);
+    }
+    public function testLlm($llmName){
+
+        $questions=llmTest::all();
+        foreach($questions as $question){
+            $assistantLog = new llmTestAnswers;
+            $assistantLog->question_id=$question->id;
+            $assistantLog->llm=$llmName;
+            $assistantLog->save();
+    
+            $scriptPath = resource_path().'/scripts/python/llmApi.py';
+    
+            $process = new Process([
+                'sudo',
+                'python3',
+                $scriptPath,
+                escapeshellcmd($question->question),
+                escapeshellcmd($llmName),
+            ]);
+            $process->setTimeout(3600);
+
+            $startTimer = microtime(true);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+            $time_elapsed_secs = microtime(true) - $startTimer;
+    
+            $answer = $process->getOutput();
+    
+            $answer=str_replace("\n","",$answer);
+            $assistantLog->answerTime=$time_elapsed_secs;
+            $assistantLog->answer=$answer;
+            $assistantLog->save();
+            
+            
+            if($answer!="I don't know."){
+                $sql=$answer;
+                if($this->checkSqlIsSafe($sql)){
+                    $results=json_encode(DB::select($sql));
+                    $assistantLog->extra=$results;
+                    $assistantLog->save();
+                }else{
+                    $results="Query voided";
+                    $assistantLog->results=$results;
+                    $assistantLog->save();
+                }
+            }
+        }
+        
+
+        return "done";
     }
 
     public function checkSqlIsSafe($sql){

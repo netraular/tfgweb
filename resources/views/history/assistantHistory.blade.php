@@ -28,9 +28,13 @@
         @if(!is_null($history['results']) and $history['results']!="Query voided")
           <table class="table-bordered">
             <tr>
-            @foreach(array_keys((array)json_decode($history['results'])[0]) as $key)
-              <th>{{$key}}</th>
-            @endforeach
+              @if(isset(json_decode($history['results'])[0]))
+                @foreach(array_keys((array)json_decode($history['results'])[0]) as $key)
+                  <th>{{$key}}</th>
+                @endforeach
+              @else
+              <th></th>
+              @endif
             </tr>
             @foreach(json_decode($history['results']) as $row)
             <tr>

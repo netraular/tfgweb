@@ -23,3 +23,4 @@ yarn-error.log
 /storage/audios/tts/*
 /public/tmp/
 connectDbReboot.sh
+/resources/scripts/python/AddDBrows.py
