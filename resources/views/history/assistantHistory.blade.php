@@ -25,7 +25,7 @@
     <tr>
       <td></td>
       <td>
-        @if(!is_null($history['results']) and $history['results']!="Query voided")
+        @if(!is_null($history['results']) and $history['results']!="Query voided" and $history['results']!="[]" and $history['results']!="Data too long for column." and $history['results']!="I don't know." and $history['results']!="Process time exceeded")
           <table class="table-bordered">
             <tr>
               @if(isset(json_decode($history['results'])[0]))
@@ -44,6 +44,8 @@
             </tr>
             @endforeach
           </table>
+        @elseif(!is_null($history['results']))
+          {{$history['results']}}
         @endif
       </td>
     </tr>
