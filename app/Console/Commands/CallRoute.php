@@ -28,7 +28,7 @@ class CallRoute extends Command
     public function handle()
     {
         $controller = new VirtualAssistantController();
-        $result = $controller->testLlm("complexLlmToSql"); 
+        $result = $controller->testLlm("phi3miniToSql"); 
         $this->info('Result: ' . $result);
     }
 }

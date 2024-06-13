@@ -12,7 +12,7 @@ if len(sys.argv) != 2:
 question = sys.argv[1]
 
 client = Client(host='http://localhost:11434')
-response = client.chat(model='complexLlmToSql', messages=[
+response = client.chat(model='codeqwen7bToSql', messages=[
   {
     'role': 'user',
     'content': question,

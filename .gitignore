@@ -24,3 +24,6 @@ yarn-error.log
 /public/tmp/
 connectDbReboot.sh
 /resources/scripts/python/AddDBrows.py
+/resources/scripts/python/checkAnswers.py
+/resources/scripts/python/createAnswers.py
+/resources/scripts/python/borrar.py

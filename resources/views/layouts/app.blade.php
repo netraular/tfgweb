@@ -18,261 +18,173 @@
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
 
+        .wrapper {
+            display: flex;
+            height: 100%;
+        }
 
+        .sidebar {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 260px;
+            transition: width 0.3s;
+        }
 
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
 
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
 
+        .content.expanded {
+            margin-left: 0;
+        }
 
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 260px;
+            z-index: 1000;
+            
+            transition: left 0.3s;
+        }
 
-     
-  <!-- Sidebar -->
-  <nav id="navbarSupportedContent" class="collapse d-lg-block sidebar navbar-collapse" >
-    <div id="sidenav-1" class="sidenav" role="navigation">
-      <a class=" d-flex justify-content-center py-4" href="/">
-        <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
-      </a>
-      <div class="position-sticky">
-        <div class="list-group list-group-flush mx-3 mt-4 ">
-          <a href="/" class="list-group-item list-group-item-action py-2 {{ request()->is('/') ? 'active' : '' }}" >
-            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Principal</span>
-          </a>
-          <a href="/testMenu" class="list-group-item list-group-item-action py-2 {{ request()->is('testMenu') ? 'active' : '' }}" >
-            <i class="fas fa-chart-area fa-fw me-3"></i><span>Zona test</span>
-          </a>
-          <a href="/audioHistory" class="list-group-item list-group-item-action py-2 {{ request()->is('history') ? 'active' : '' }}">
-            <i class="fas fa-lock fa-fw me-3"></i><span>Historial voz</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <!-- Sidebar -->
+        .sidebar.collapsed + .toggle-btn {
+            left: 10px;
+        }
 
+        .footer-nav {
+            padding-bottom: 20px;
+        }
+
+        .footer-nav .container-fluid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <div id="app" >
-      <!--Main view-->
-      <main role="main">
-        
-      <!-- Navbar -->
-        <nav class="ml-5 navbar navbar-expand navbar-light fixed" >
-          <div class="container-fluid d-flex justify-content-between">
-            
-            <!-- Sidebar Toggler -->
-            <button class="btn d-block d-lg-none navbar-toggler me-3" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="bi bi-list fs-2 "></i>
-            </button>
-
-            <!-- Chatbot form -->
-            <div class="navbar-brand flex-fill text-center">
-                <div class="input-group">
-                  <div>
-                    <button id="record-btn-main" class="btn btn-outline-secondary" type="button" onclick="startRecordingMain()"><i class="bi bi-mic fs-4" ></i></button>
-                    <!-- Loading Spinner de Bootstrap -->
-                    <div id="loading-spinner2" class="spinner-border" role="status" style="display: none;">
-                        <span class="visually-hidden">Cargando...</span>
+    <div id="app" class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar d-lg-block navbar-collapse">
+            <div id="sidenav-1" class="sidenav d-flex flex-column" role="navigation">
+                <a class="d-flex justify-content-center py-4" href="/">
+                    <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
+                </a>
+                <div class="position-sticky flex-grow-1">
+                    <div class="list-group list-group-flush mx-3 mt-4">
+                        <a href="/" class="list-group-item list-group-item-action py-2 {{ request()->is('/') ? 'active' : '' }}">
+                            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Probar asistente</span>
+                        </a>
+                        <a href="/testMenu" class="list-group-item list-group-item-action py-2 {{ request()->is('testMenu') ? 'active' : '' }}">
+                            <i class="fas fa-chart-area fa-fw me-3"></i><span>Tests funcionalidades</span>
+                        </a>
+                        <a href="/audioHistory" class="list-group-item list-group-item-action py-2 {{ request()->is('audioHistory') ? 'active' : '' }}">
+                            <i class="fas fa-lock fa-fw me-3"></i><span>Historial audios</span>
+                        </a>
+                        <a href="/assistantHistory" class="list-group-item list-group-item-action py-2 {{ request()->is('assistantHistory') ? 'active' : '' }}">
+                            <i class="fas fa-lock fa-fw me-3"></i><span>Historial consultas</span>
+                        </a>
+                        <a href="/comparisons" class="list-group-item list-group-item-action py-2 {{ request()->is('comparisons') ? 'active' : '' }}">
+                            <i class="fas fa-lock fa-fw me-3"></i><span>Comparador consultas</span>
+                        </a>
                     </div>
-
-                    <!-- Botón para grabar audio -->
-                    <button id="upload_audio" hidden onclick="uploadAudio()">Subir Audio</button>
-
-
-
-                    <script>
-                      // Variables para la grabación de audio
-                      var mediaRecorder;
-                      var audioChunks = [];
-
-                      // Función para iniciar la grabación
-                      function startRecordingMain() {
-                          navigator.mediaDevices.getUserMedia({ audio: true })
-                              .then(stream => {
-                                  mediaRecorder = new MediaRecorder(stream);
-                                  mediaRecorder.start();
-
-                                  mediaRecorder.addEventListener('dataavailable', event => {
-                                      audioChunks.push(event.data);
-                                  });
-
-                                  mediaRecorder.addEventListener('stop', () => {
-                                      var audioBlob = new Blob(audioChunks);
-                                      uploadRecordedAudioMain(audioBlob);
-                                      audioChunks = [];
-                                      stream.getTracks().forEach( track => track.stop() ); // get all tracks from the MediaStream // stop each of them
-                                  });
-
-                                  // Cambiar el texto del botón y su función onclick
-                                  var recordBtn = document.getElementById('record-btn-main');
-                                  recordBtn.textContent = 'Detener Grabación';
-                                  recordBtn.onclick = stopRecordingMain;
-                              });
-                      }
-
-                      // Función para detener la grabación
-                      function stopRecordingMain() {
-                          mediaRecorder.stop();
-
-                          // Restablecer el botón de grabación
-                          var recordBtn = document.getElementById('record-btn-main');
-                          recordBtn.innerHTML = "<i class='bi bi-mic fs-4' ></i>";
-                          recordBtn.onclick = startRecordingMain;
-                      }
-
-                      // Función para subir el audio grabado
-                      function uploadRecordedAudioMain(audioBlob) {
-                          var loadingSpinner = document.getElementById('loading-spinner2');
-                          var upload_audio = document.getElementById('upload_audio');
-                          var recordBtn = document.getElementById('record-btn-main');
-
-                          // Mostrar el spinner de carga
-                          loadingSpinner.style.display = 'block';
-                          upload_audio.style.display = 'none';
-                          recordBtn.style.display = 'none';
-
-                          var formData = new FormData();
-                          formData.append('audio', audioBlob, 'grabacion.mp3');
-
-                          // Enviar el audio grabado al controlador mediante fetch
-                          fetch('/sttApi', {
-                              method: 'POST',
-                              body: formData,
-                              headers: {
-                                  'X-CSRF-TOKEN': '{{ csrf_token() }}', // Asegúrate de incluir el token CSRF de Laravel
-                              },
-                          })
-                          .then(response => response.json())
-                          .then(transcriptionText => {
-                              // Ocultar el spinner de carga
-                              loadingSpinner.style.display = 'none';
-                              upload_audio.style.display = 'inline';
-                              recordBtn.style.display = 'inline';
-                              // Mostrar la transcripción
-                              document.getElementById('promptInput').value = transcriptionText;
-                          })
-                          .catch(error => {
-                              // Ocultar el spinner de carga
-                              loadingSpinner.style.display = 'none';
-                              upload_audio.style.display = 'inline';
-                              recordBtn.style.display = 'inline';
-                              console.error('Error al subir la grabación:', error);
-                              alert('Error al subir la grabación.');
-                          });
-                      }
-                    </script>
-                  </div>
-                    <input type="text" class="form-control" id="promptInput" placeholder="¿Que datos tiene la tabla (Proyecto/Material/Trabajador/TrabajadoresDelProyecto) ?">
-                    <button id="startAssistantButton" class="btn btn-outline-secondary" type="button" onclick="startAssistant(this)"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
-                    <div id="loading-spinner3" class="spinner-border" role="status" style="border-radius: 50%;display: none;">
-                        <span class="visually-hidden">Cargando...</span>
+                </div>
+                <!-- Profile and Language Options at the Bottom -->
+                <div class="footer-nav mx-3 mb-4">
+                    <div class="container-fluid">
+                        <!-- Profile -->
+                        <li class="nav-item dropdown list-unstyled me-3">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                                <img src="{{ asset('images/profilePic.png') }}" height="50" alt="" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="#">Mi perfil</a>
+                                <a class="dropdown-item" href="#">Ajustes</a>
+                                <a class="dropdown-item" href="#">Salir</a>
+                            </div>
+                        </li>
+                        <!-- Language Options -->
+                        <li class="nav-item dropdown list-unstyled">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                                @if(app()->getLocale() == 'en')
+                                    <x-flag-country-gb height="20" />
+                                @elseif(app()->getLocale() == 'es')
+                                    <x-flag-country-es height="20" />
+                                @endif
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'en']) }}">
+                                    <x-flag-country-gb height="20" /> English{!! app()->getLocale() == 'en' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
+                                </a>
+                                <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'es']) }}">
+                                    <x-flag-country-es height="20" /> Español{!! app()->getLocale() == 'es' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
+                                </a>
+                            </div>
+                        </li>
                     </div>
-                    <script>
-                      // Función para subir el audio grabado
-                      function startAssistant(sendButton) {
-                          var loadingSpinner = document.getElementById('loading-spinner3');
-                          var text_prompt = document.getElementById('promptInput').value;
-                          var sendButton = document.getElementById('record-btn-main');
-                          var startAssistantButton = document.getElementById('startAssistantButton');
-
-                          // Mostrar el spinner de carga
-                          loadingSpinner.style.display = 'block';
-                          sendButton.style.display = 'none';
-                          startAssistantButton.style.display = 'none';
-
-                          var formData = new FormData();
-                          formData.append('texto', text_prompt);
-
-                          // Enviar el audio grabado al controlador mediante fetch
-                          fetch('/assistant', {
-                              method: 'POST',
-                              body: formData,
-                              headers: {
-                                  'X-CSRF-TOKEN': '{{ csrf_token() }}', // Asegúrate de incluir el token CSRF de Laravel
-                              },
-                          })
-                          .then(response => response.json())
-                          .then(assistantAnswer => {
-                              // Ocultar el spinner de carga
-                              loadingSpinner.style.display = 'none';
-                              sendButton.style.display = 'inline';
-                              startAssistantButton.style.display = 'inline';
-                              // Mostrar la transcripción
-                              // document.getElementById('divRespuesta').value = assistantAnswer;
-                              alert(assistantAnswer)
-                          })
-                          .catch(error => {
-                              // Ocultar el spinner de carga
-                              loadingSpinner.style.display = 'none';
-                              sendButton.style.display = 'inline';
-                              startAssistantButton.style.display = 'inline';
-                              console.error('Error al subir el text prompt:', error);
-                              alert('Error al ejecutar el asistente.');
-                          });
-                      }
-                    </script>
                 </div>
             </div>
-
-            <!-- Right Side Of Navbar -->
-            
-            <ul class="navbar-nav d-flex flex-row align-items-center">
-              
-              <!-- Profile -->
-              <li class="nav-item dropdown">
-                  <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
-                  <img src="{{ asset('images/profilePic.png') }}" height="50" alt="" />
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end" >
-                      <a class="dropdown-item" href="#">Mi perfil</a>
-                      <a class="dropdown-item" href="#">Ajustes</a>
-                      <a class="dropdown-item" href="#">Salir</a>
-                  </div>
-              </li>
-
-              <!-- General options -->
-              <li class="nav-item dropdown">
-                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
-                @if(app()->getLocale() == 'en')
-                    <x-flag-country-gb height="20" />
-                @elseif(app()->getLocale() == 'es')
-                    <x-flag-country-es height="20" />
-                @endif                </a>
-                <div class="dropdown-menu dropdown-menu-end" >
-                  <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'en']) }}">
-                    <x-flag-country-gb height="20" /> English{!! app()->getLocale() == 'en' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
-                  </a>
-                  <a class="dropdown-item" href="{{ route('change.language', ['locale' => 'es']) }}">
-                    <x-flag-country-es height="20" /> Español{!! app()->getLocale() == 'es' ? "<i class='bi bi-check-lg' style='color:green'></i>" : "" !!}
-                  </a>
-                </div>
-              </li>
-
-            </ul>
-
-          </div>
         </nav>
+        <!-- Sidebar -->
 
-        <div class="container mt-5 pt-5">
-            @yield('content')
-        </div>
-      </main>
-
+        <!-- Main view -->
+        <main id="content" class="content">
+            <div class="container mt-5 pt-5">
+                @yield('content')
+            </div>
+        </main>
+        <!-- Toggle Button -->
+        <button id="toggle-btn" class="btn btn-outline-secondary toggle-btn">
+            <i id="toggle-icon" class="bi bi-arrow-bar-left"></i>
+        </button>
     </div>
 
-  </body>
-</html>
-<script>
-    // Add event listener to the sidebar toggle button
-    document.querySelector('.navbar-toggler').addEventListener('click', function() {
-        // Toggle the CSS class on the top navbar when the sidebar is toggled
-        document.querySelector('.navbar').classList.toggle('navbar-expanded');
-        // Change the icon based on the visibility of the sidebar
-        var icon = document.querySelector('.navbar-toggler i');
-        if (document.querySelector('.navbar').classList.contains('navbar-expanded')) {
-            icon.className = 'bi bi-arrow-bar-left fs-2';
-        } else {
-            icon.className = 'bi bi-list fs-2';
-        }
-    });
-</script>
+    <script>
+        document.getElementById('toggle-btn').addEventListener('click', function() {
+            var sidebar = document.getElementById('sidebar');
+            var content = document.getElementById('content');
+            var icon = document.getElementById('toggle-icon');
+            var toggleBtn = document.getElementById('toggle-btn');
 
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+
+            if (sidebar.classList.contains('collapsed')) {
+                icon.className = 'bi bi-arrow-bar-right';
+                content.style.marginLeft = '0';
+                toggleBtn.style.left = '10px';
+            } else {
+                icon.className = 'bi bi-arrow-bar-left';
+                content.style.marginLeft = '260px'; // Ajusta el margen para que coincida con el ancho del sidebar
+                toggleBtn.style.left = '260px'; // Posiciona el botón a la derecha del sidebar
+            }
+        });
+
+        // Asegúrate de que el contenido esté inicialmente posicionado correctamente
+        document.addEventListener('DOMContentLoaded', function() {
+            var content = document.getElementById('content');
+            var toggleBtn = document.getElementById('toggle-btn');
+            if (!document.getElementById('sidebar').classList.contains('collapsed')) {
+                content.style.marginLeft = '260px'; // Ajusta el margen para que coincida con el ancho del sidebar
+                toggleBtn.style.left = '260px'; // Posiciona el botón a la derecha del sidebar
+            }
+        });
+    </script>
+</body>
+</html>

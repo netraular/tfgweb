@@ -10,4 +10,9 @@ class llmTest extends Model
     use HasFactory;
     protected $table='LlmTest';
     public $timestamps = false;
+
+    public function answers()
+    {
+        return $this->hasMany(LlmTestAnswers::class, 'question_id', 'id');
+    }
 }

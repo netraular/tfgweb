@@ -94,6 +94,9 @@ class VirtualAssistantController extends Controller
 
         $answer=str_replace("\n","",$answer);
         $assistantLog->answerTime=$time_elapsed_secs;
+        if(strlen($answer)>=1000){
+            $answer="Data too long for column.";
+        }
         $assistantLog->answer=$answer;
         $assistantLog->save();
         
@@ -102,28 +105,40 @@ class VirtualAssistantController extends Controller
             $sql=$answer;
             if($this->checkSqlIsSafe($sql)){
                 try {
-                    $results = json_encode(DB::select($sql));
-                } catch (\Exception $e) {
-                    // Handle the error
-                    Log::error('SQL query failed: ' . $e->getMessage());
+                    $results = DB::select($sql);
+                } catch (\Throwable $e) {
             
                     // Optionally, set $results to a default value or null
                     $results = "SQL query failed";
                 }
-                $assistantLog->results=$results;
-                $assistantLog->save();
+                if(strlen(json_encode($results))>=1000){
+                    $results="Data too long for column.";
+                    $assistantLog->results=$results;
+                    $assistantLog->save();
+                }else{
+                    $assistantLog->results=json_encode($results);
+                    $assistantLog->save();
+                }
             }else{
                 $results="Query voided";
-                $assistantLog->results=$results;
+                $assistantLog->extra=$results;
                 $assistantLog->save();
             }
+        }else{
+            $assistantLog->extra=$answer;
+            $assistantLog->save();
         }
 
-        return response()->json($answer);
+        return response()->json([$answer,$results]);
     }
-    public function testLlm($llmName){
 
-        $questions=llmTest::all();
+    public function interactAssistant(Request $request){
+
+        return view('assistant.interactAssistant');
+    }
+
+    public function testLlm($llmName){
+        $questions=llmTest::get();//where('id',">=",553)->
         foreach($questions as $question){
             $assistantLog = new llmTestAnswers;
             $assistantLog->question_id=$question->id;
@@ -139,39 +154,87 @@ class VirtualAssistantController extends Controller
                 escapeshellcmd($question->question),
                 escapeshellcmd($llmName),
             ]);
-            $process->setTimeout(3600);
+            $process->setTimeout(100);
 
             $startTimer = microtime(true);
-            $process->run();
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
+            try{
+                $process->run();
+                
+                $answer = $process->getOutput();
+            } catch (\Throwable $e) {
+                
+                $answer = "Process time exceeded";
             }
-            $time_elapsed_secs = microtime(true) - $startTimer;
-    
-            $answer = $process->getOutput();
-    
-            $answer=str_replace("\n","",$answer);
-            $assistantLog->answerTime=$time_elapsed_secs;
-            $assistantLog->answer=$answer;
-            $assistantLog->save();
-            
-            
-            if($answer!="I don't know."){
-                $sql=$answer;
-                if($this->checkSqlIsSafe($sql)){
-                    $results=json_encode(DB::select($sql));
-                    $assistantLog->extra=$results;
-                    $assistantLog->save();
-                }else{
-                    $results="Query voided";
-                    $assistantLog->results=$results;
-                    $assistantLog->save();
+            if (!$process->isSuccessful()) {
+                // throw new ProcessFailedException($process);
+                
+                $assistantLog->answer=$answer;
+                $assistantLog->save();
+            }else{
+                $time_elapsed_secs = microtime(true) - $startTimer;
+        
+                $answer=str_replace("\n","",$answer);
+                $assistantLog->answerTime=$time_elapsed_secs;
+                if(strlen($answer)>=1000){
+                    $answer="Data too long for column.";
                 }
+                $assistantLog->answer=$answer;
+                $assistantLog->save();
             }
         }
-        
-
         return "done";
+    }
+
+    public function generateExtraAnswer(){
+        //Solo hay 4 respuestas posibles de extra, "SQL query failed""Query voided","Data too long for column.", real answer
+        //get all sql querys
+        $answers=llmTestAnswers::whereNull('extra')->get();//where('id',">=",553)->
+        foreach($answers as $answer){
+            $llmTestAnswer = llmTestAnswers::find($answer->id);
+            $sql=$answer->answer;
+            switch($sql){
+                case "Data too long for column.":
+                    $extra="SQL query failed";
+                    $llmTestAnswer->extra=$extra;
+                    $llmTestAnswer->save();
+                    break;
+                case "I don't know.":
+                    $extra="I don't know.";
+                    $llmTestAnswer->extra=$extra;
+                    $llmTestAnswer->save();
+                    break;
+                case "Process time exceeded":
+                    $extra="SQL query failed";
+                    $llmTestAnswer->extra=$extra;
+                    $llmTestAnswer->save();
+                    break;
+                case "":
+                    $extra="SQL query failed";
+                    $llmTestAnswer->extra=$extra;
+                    $llmTestAnswer->save();
+                    break;
+                default:
+                    if($this->checkSqlIsSafe($sql)){
+                        try {
+                            $results = json_encode(DB::select($sql));
+                        } catch (\Throwable $e) {
+                            // Optionally, set $results to a default value or null
+                            $results = "SQL query failed";
+                        }
+                        
+                        if(strlen($results)>=1000){
+                            $results="Data too long for column.";
+                        }
+                        $llmTestAnswer->extra=$results;
+                        $llmTestAnswer->save();
+                    }else{
+                        $extra="Query voided";
+                        $llmTestAnswer->extra=$extra;
+                        $llmTestAnswer->save();
+                    }
+                    break;
+            }
+        }
     }
 
     public function checkSqlIsSafe($sql){
