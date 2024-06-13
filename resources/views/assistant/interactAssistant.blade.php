@@ -88,7 +88,7 @@
         formData.append('audio', audioBlob, 'grabacion.mp3');
 
         // Enviar el audio grabado al controlador mediante fetch
-        fetch('/sttApi', {
+        fetch('/sttLocal', {
             method: 'POST',
             body: formData,
             headers: {

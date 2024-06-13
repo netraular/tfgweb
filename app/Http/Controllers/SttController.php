@@ -30,9 +30,44 @@ class SttController extends Controller
 
             $audioLog = new audioHistory;
             $audioLog->transcribeType="STT";
-            $audioLog->filename='public/'.$path;
+            $audioLog->filename= '/storage/'.$path;
             $audioLog->language=app()->getLocale();
             $audioLog->technology="google API";
+            $audioLog->text=$output;
+            $audioLog->save();
+
+            // Devolver una respuesta con la palabra "ok"
+            return response()->json($output);
+        }
+        return response()->json('error', 400);
+    }
+
+    public function speechToTextLocal(Request $request){
+        if ($request->hasFile('audio') && $request->file('audio')->isValid()) {
+            // Obtener el archivo de audio del request
+            $audioFile = $request->file('audio');
+
+            // Generar un nombre único para el archivo
+            $filename =  date("YmdHms").'_' .$audioFile->getClientOriginalName();
+
+            // Guardar el archivo en el disco 'public' en una carpeta 'audios'
+            $path = $audioFile->storeAs('localSTT', $filename,'public');
+
+            //Llamar a la api stt de google con el audio
+            $process = new Process(['sudo','python3',resource_path().'/scripts/python/localStt.py','app/public/'.escapeshellcmd($path)]);
+            $process->run();
+            if (!$process->isSuccessful()) {
+
+                throw new ProcessFailedException($process);
+            }
+
+            $output = $process->getOutput();
+
+            $audioLog = new audioHistory;
+            $audioLog->transcribeType="STT";
+            $audioLog->filename= '/storage/'.$path;
+            $audioLog->language=app()->getLocale();
+            $audioLog->technology="local STT";
             $audioLog->text=$output;
             $audioLog->save();
 

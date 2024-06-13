@@ -1,13 +1,13 @@
 <h2>Transcripción de Audio Local</h2>
 
 <!-- Formulario para subir audio -->
-<form id="upload-form2">
+<form id="upload-form">
     <input type="file" id="audio-input2" accept=".mp3" />
-    <button id="upload_audio2" type="button" onclick="uploadAudio()">Subir Audio</button>
+    <button id="upload_audio" type="button" onclick="uploadAudio()">Subir Audio</button>
 </form>
 
 <!-- Loading Spinner de Bootstrap -->
-<div id="loading-spinner4" class="spinner-border" role="status" style="display: none;">
+<div id="loading-spinner2" class="spinner-border" role="status" style="display: none;">
     <span class="visually-hidden">Cargando...</span>
 </div>
 
@@ -19,7 +19,7 @@
 
 
 
-<form action="/sttApi" method="POST" enctype="multipart/form-data" style="display:none">
+<form action="/sttLocal" method="POST" enctype="multipart/form-data" style="display:none">
     <!-- Campo oculto para el token CSRF -->
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     
@@ -30,11 +30,11 @@
 
 <script>
 // Función para subir el audio
-function uploadAudioLocal() {
+function uploadAudio() {
     var audioInput = document.getElementById('audio-input2');
     var audioFile = audioInput.files[0];
-    var loadingSpinner = document.getElementById('loading-spinner4');
-    var upload_audio = document.getElementById('upload_audio2');
+    var loadingSpinner = document.getElementById('loading-spinner2');
+    var upload_audio = document.getElementById('upload_audio');
     var recordBtn = document.getElementById('record-btn2');
 
     // Mostrar el spinner de carga
@@ -47,7 +47,7 @@ function uploadAudioLocal() {
     formData.append('audio', audioFile);
 
     // Enviar el FormData al controlador mediante fetch
-    fetch('/localStt', {
+    fetch('/sttLocal', {
         method: 'POST',
         body: formData,
         headers: {
@@ -60,7 +60,6 @@ function uploadAudioLocal() {
         loadingSpinner.style.display = 'none';
         upload_audio.style.display = 'inline';
         recordBtn.style.display = 'inline';
-
         // Mostrar la transcripción
         document.getElementById('transcription2').textContent = transcriptionText;
     })
@@ -79,7 +78,7 @@ var mediaRecorder;
 var audioChunks = [];
 
 // Función para iniciar la grabación
-function startRecordingLocal() {
+function startRecording() {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             mediaRecorder = new MediaRecorder(stream);
@@ -104,7 +103,7 @@ function startRecordingLocal() {
 }
 
 // Función para detener la grabación
-function stopRecordingLocal() {
+function stopRecording() {
     mediaRecorder.stop();
 
     // Restablecer el botón de grabación
@@ -114,9 +113,9 @@ function stopRecordingLocal() {
 }
 
 // Función para subir el audio grabado
-function uploadRecordedAudioLocal(audioBlob) {
-    var loadingSpinner = document.getElementById('loading-spinner4');
-    var upload_audio = document.getElementById('upload_audio2');
+function uploadRecordedAudio(audioBlob) {
+    var loadingSpinner = document.getElementById('loading-spinner2');
+    var upload_audio = document.getElementById('upload_audio');
     var recordBtn = document.getElementById('record-btn2');
 
     // Mostrar el spinner de carga
@@ -128,7 +127,7 @@ function uploadRecordedAudioLocal(audioBlob) {
     formData.append('audio', audioBlob, 'grabacion.mp3');
 
     // Enviar el audio grabado al controlador mediante fetch
-    fetch('/LocalStt', {
+    fetch('/sttLocal', {
         method: 'POST',
         body: formData,
         headers: {
@@ -142,7 +141,7 @@ function uploadRecordedAudioLocal(audioBlob) {
         upload_audio.style.display = 'inline';
         recordBtn.style.display = 'inline';
         // Mostrar la transcripción
-        document.getElementById('transcription').textContent = transcriptionText;
+        document.getElementById('transcription2').textContent = transcriptionText;
     })
     .catch(error => {
         // Ocultar el spinner de carga

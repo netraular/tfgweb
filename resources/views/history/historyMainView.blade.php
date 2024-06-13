@@ -25,7 +25,7 @@
                     <td>{{ $history->text }}</td>                    
                     <td>
                         <audio controls>
-                            <source src="{{ asset($history->filename) }}" type="audio/mp3">
+                            <source src="{{ asset("$history->filename") }}" type="audio/mp3">
                             Your browser does not support the audio element.
                         </audio>
                     </td>
