@@ -27,3 +27,8 @@ connectDbReboot.sh
 /resources/scripts/python/checkAnswers.py
 /resources/scripts/python/createAnswers.py
 /resources/scripts/python/borrar.py
+/resources/scripts/python/evaluation/bleu.py
+/resources/scripts/python/evaluation/meteor.py
+/resources/scripts/python/evaluation/nist.py
+/resources/scripts/python/evaluation/evaluation.py
+/resources/scripts/python/evaluation/model_data/*

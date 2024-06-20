@@ -20,7 +20,7 @@ idioma = sys.argv[3]
 
 # generate speech by cloning a voice using default settings
 tts.tts_to_file(text=texto_para_audio,
-                file_path="/var/www/html/laravel/storage/audios/tts/localTts/"+nombre_archivo_salida+".mp3",
+                file_path="/var/www/html/laravel/storage/app/public/localTTS/"+nombre_archivo_salida+".mp3",
                 speaker_wav="/var/www/html/laravel/storage/audios/tts/audio_raul.wav",
                 language=idioma)
 

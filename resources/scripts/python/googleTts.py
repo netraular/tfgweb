@@ -49,6 +49,6 @@ response = client.synthesize_speech(
 )
 
 # The response's audio_content is binary.
-with open('/var/www/html/laravel/storage/audios/tts/googleTts/'+nombre_archivo_salida+'.mp3', "wb") as out:
+with open('/var/www/html/laravel/storage/app/public/googleTTS/'+nombre_archivo_salida+'.mp3', "wb") as out:
     # Write the response to the output file.
     out.write(response.audio_content)

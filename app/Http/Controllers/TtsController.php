@@ -19,15 +19,15 @@ class TtsController extends Controller
             throw new ProcessFailedException($process);
         }
 
-        $pathToFile = storage_path("audios/tts/googleTts/$nombreArchivoAudio.mp3");
-        $path = Storage::disk('public')->putFileAs('audios/tts/googleTts/', $pathToFile, 'test.mp3');
+        $pathToFile = storage_path("app/public/googleTTS/$nombreArchivoAudio.mp3");
+        $path = Storage::disk('public')->putFileAs('googleTTS/', $pathToFile, 'test.mp3');
         // $path = Storage::disk('public')->put('audios/tts/googleTts', $fileContent);
         // $path = $fileContent->storeAs('audios/tts/googleTts', $fileContent,'public');
 
 
         $audioLog = new audioHistory;
         $audioLog->transcribeType="TTS";
-        $audioLog->filename="audios/tts/googleTts/$nombreArchivoAudio.mp3";
+        $audioLog->filename="/storage/googleTTS/$nombreArchivoAudio.mp3";
         $audioLog->language=app()->getLocale();
         $audioLog->technology="google API";
         $audioLog->text=$texto;
@@ -59,7 +59,7 @@ class TtsController extends Controller
         }
         $output = $process->getOutput();
 
-        $pathToFile = storage_path("audios/tts/localTts/$nombreArchivoAudio.mp3");
+        $pathToFile = storage_path("app/public/localTTS/$nombreArchivoAudio.mp3");
         return response()->download($pathToFile);
     }
     

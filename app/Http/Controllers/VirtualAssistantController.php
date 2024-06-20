@@ -222,7 +222,7 @@ class VirtualAssistantController extends Controller
                             $results = "SQL query failed";
                         }
                         
-                        if(strlen($results)>=1000){
+                        if(strlen($results)>=2000){
                             $results="Data too long for column.";
                         }
                         $llmTestAnswer->extra=$results;
@@ -233,6 +233,116 @@ class VirtualAssistantController extends Controller
                         $llmTestAnswer->save();
                     }
                     break;
+            }
+        }
+    }
+
+    //Mueve las answers del test de Formal a informal y informal_en
+    public function checkNonFormalAnswers()
+    {
+        $llmTests = LlmTest::all();
+
+        // Agrupar por el primer número de la columna type
+        $grouped = $llmTests->groupBy(function ($item) {
+            preg_match('/^(\d+)-/', $item->type, $matches);
+            return $matches[1] ?? 'undefined';
+        });
+
+        // Para cada grupo, ordenar por el segundo número y dividir en arrays de 20 elementos
+        $result = $grouped->map(function ($group) {
+            // Ordenar por el segundo número de la columna type
+            $sorted = $group->sortBy(function ($item) {
+                preg_match('/^\d+-(\d+)-/', $item->type, $matches);
+                return $matches[1] ?? 0;
+            });
+
+            // Dividir en arrays de 20 elementos y usar la palabra como key
+            $chunked = $sorted->mapToGroups(function ($item) {
+                preg_match('/^\d+-\d+-(\w+)/', $item->type, $matches);
+                $word = $matches[1] ?? 'undefined';
+                return [$word => $item];
+            });
+
+            return $chunked->map(function ($groupedItems) {
+                return $groupedItems->chunk(20);
+            });
+        });
+
+        foreach($result as $results){
+            foreach($results['formal'] as $formalAnswers){
+                foreach($formalAnswers->keys() as $questionKeys){
+                        if(!is_null($formalAnswers[$questionKeys]['sql'])){
+                            $results['informal'][0][$questionKeys]['sql']=$formalAnswers[$questionKeys]['sql'];
+                            $results['informal_en'][0][$questionKeys]['sql']=$formalAnswers[$questionKeys]['sql'];
+                        }
+                        if(!is_null($formalAnswers[$questionKeys]['expectedAnswer'])){
+                            $results['informal'][0][$questionKeys]['expectedAnswer']=$formalAnswers[$questionKeys]['expectedAnswer'];
+                            $results['informal_en'][0][$questionKeys]['expectedAnswer']=$formalAnswers[$questionKeys]['expectedAnswer'];
+                        }
+                }
+            }
+        }
+    }
+
+    //Coloca los resultados correctos en llmTest para poder usarlos luego en las answer
+    public function correctAnswerToTest()
+    {
+        // Obtener todas las filas de LlmTestAnswer donde isCorrect == 1
+        $correctAnswers = LlmTestAnswers::where('isCorrect', 1)->get();
+
+        // Iterar sobre cada fila de LlmTestAnswer
+        foreach ($correctAnswers as $answer) {
+            // Buscar la fila correspondiente en LlmTest
+            $llmTest = LlmTest::find($answer->question_id);
+
+            // Verificar si se encontró la fila en LlmTest
+            if ($llmTest) {
+                // Actualizar las columnas de LlmTest
+                $llmTest->sql = $answer->answer;
+                $llmTest->expectedAnswer = $answer->extra;
+
+                // Guardar la fila actualizada en la base de datos
+                $llmTest->save();
+
+                // Extraer el prefijo "numero-numero-" del campo type
+                $typeParts = explode('-', $llmTest->type);
+                if (count($typeParts) >= 2) {
+                    $prefix = $typeParts[0] . '-' . $typeParts[1] . '-';
+                    
+                    // Buscar otras filas en LlmTest que tengan el mismo prefijo en type
+                    $similarTests = LlmTest::where('type', 'like', $prefix . '%')->get();
+                    
+                    // Aquí puedes realizar cualquier operación con las filas encontradas
+                    // Por ejemplo, imprimir las filas encontradas
+                    foreach ($similarTests as $similarTest) {
+                        $similarTest->sql = $answer->answer;
+                        $similarTest->expectedAnswer = $answer->extra;
+                        $similarTest->save();
+                    }
+                }
+            }
+        }
+    }
+    
+    //Compara el result de answers con el valor de LlmTest y si són iguales marca el answer como bueno.
+    public function checkCorrectAnswers()
+    {
+        // Obtener todas las filas de LlmTestAnswer
+        $llmTestAnswers = LlmTestAnswers::all();
+    
+        // Iterar sobre cada fila de LlmTestAnswer
+        foreach ($llmTestAnswers as $answer) {
+            // Buscar la fila correspondiente en LlmTest
+            $llmTest = LlmTest::find($answer->question_id);
+    
+            // Verificar si se encontró la fila en LlmTest y comparar expectedAnswer y extra
+            if ($llmTest && $llmTest->expectedAnswer === $answer->extra) {
+                // Si son iguales, actualizar la columna isCorrect a 1
+                $answer->isCorrect = 1;
+                $answer->save();
+            }elseif($llmTest && is_null($answer->extra)){
+                $answer->isCorrect = 0;
+                $answer->save();
             }
         }
     }

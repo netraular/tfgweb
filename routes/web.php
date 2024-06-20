@@ -19,9 +19,8 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('testMenu');
-// });
+Route::match(['get', 'post'],'/test', [VirtualAssistantController::class, 'checkCorrectAnswers']);
+
 
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
