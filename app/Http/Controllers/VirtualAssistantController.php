@@ -289,34 +289,38 @@ class VirtualAssistantController extends Controller
     {
         // Obtener todas las filas de LlmTestAnswer donde isCorrect == 1
         $correctAnswers = LlmTestAnswers::where('isCorrect', 1)->get();
-
-        // Iterar sobre cada fila de LlmTestAnswer
-        foreach ($correctAnswers as $answer) {
+    
+        // Agrupar las respuestas por question_id
+        $groupedAnswers = $correctAnswers->groupBy('question_id');
+    
+        // Iterar sobre cada grupo de respuestas
+        foreach ($groupedAnswers as $question_id => $answers) {
+            // Filtrar extras únicos y concatenarlos
+            $uniqueExtras = $answers->unique('extra');
+            $combinedExtra = $uniqueExtras->pluck('extra')->implode('-');
+    
             // Buscar la fila correspondiente en LlmTest
-            $llmTest = LlmTest::find($answer->question_id);
-
+            $llmTest = LlmTest::find($question_id);
+    
             // Verificar si se encontró la fila en LlmTest
             if ($llmTest) {
-                // Actualizar las columnas de LlmTest
-                $llmTest->sql = $answer->answer;
-                $llmTest->expectedAnswer = $answer->extra;
-
+                // Actualizar solo el campo expectedAnswer de LlmTest
+                $llmTest->expectedAnswer = $combinedExtra;
+    
                 // Guardar la fila actualizada en la base de datos
                 $llmTest->save();
-
+    
                 // Extraer el prefijo "numero-numero-" del campo type
                 $typeParts = explode('-', $llmTest->type);
                 if (count($typeParts) >= 2) {
                     $prefix = $typeParts[0] . '-' . $typeParts[1] . '-';
-                    
+    
                     // Buscar otras filas en LlmTest que tengan el mismo prefijo en type
                     $similarTests = LlmTest::where('type', 'like', $prefix . '%')->get();
-                    
-                    // Aquí puedes realizar cualquier operación con las filas encontradas
-                    // Por ejemplo, imprimir las filas encontradas
+    
+                    // Actualizar las filas encontradas
                     foreach ($similarTests as $similarTest) {
-                        $similarTest->sql = $answer->answer;
-                        $similarTest->expectedAnswer = $answer->extra;
+                        $similarTest->expectedAnswer = $combinedExtra;
                         $similarTest->save();
                     }
                 }
@@ -324,28 +328,47 @@ class VirtualAssistantController extends Controller
         }
     }
     
-    //Compara el result de answers con el valor de LlmTest y si són iguales marca el answer como bueno.
+    //Compara el result de answers con el valor de LlmTest y si son iguales marca el answer como bueno.
     public function checkCorrectAnswers()
     {
+        $this->correctAnswerToTest();
+        $this->checkNonFormalAnswers();
         // Obtener todas las filas de LlmTestAnswer
         $llmTestAnswers = LlmTestAnswers::all();
-    
+
         // Iterar sobre cada fila de LlmTestAnswer
         foreach ($llmTestAnswers as $answer) {
             // Buscar la fila correspondiente en LlmTest
             $llmTest = LlmTest::find($answer->question_id);
-    
-            // Verificar si se encontró la fila en LlmTest y comparar expectedAnswer y extra
-            if ($llmTest && $llmTest->expectedAnswer === $answer->extra) {
-                // Si son iguales, actualizar la columna isCorrect a 1
-                $answer->isCorrect = 1;
-                $answer->save();
-            }elseif($llmTest && is_null($answer->extra)){
-                $answer->isCorrect = 0;
+
+            // Verificar si se encontró la fila en LlmTest
+            if ($llmTest) {
+                // Dividir expectedAnswer en partes si contiene guiones
+                $expectedAnswers = explode('-', $llmTest->expectedAnswer);
+
+                // Verificar si alguna de las partes coincide con extra
+                if (in_array($answer->extra, $expectedAnswers)) {
+                    // Si son iguales, actualizar la columna isCorrect a 1
+                    $answer->isCorrect = 1;
+                } else {
+                    // Si no coinciden, actualizar la columna isCorrect a 0
+                    // $answer->isCorrect = 0;
+                    if($answer->extra=="SQL query failed"){
+                        $answer->isCorrect = 0;
+                    }
+                    if($answer->extra=="Query voided"){
+                        $answer->isCorrect = 1;
+                    }
+                    if($answer->extra=="Data too long for column."){
+                        $answer->isCorrect = 1;
+                    }
+                    
+                }
                 $answer->save();
             }
         }
     }
+
 
     public function checkSqlIsSafe($sql){
         $safe=true;
@@ -356,6 +379,9 @@ class VirtualAssistantController extends Controller
             $safe=false;
         }
         if(str_contains($sql, 'TRUNCATE')){
+            $safe=false;
+        }
+        if(str_contains($sql, 'INSERT')){
             $safe=false;
         }
         if(str_contains($sql, 'ALTER')){

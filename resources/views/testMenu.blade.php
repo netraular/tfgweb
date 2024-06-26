@@ -21,14 +21,14 @@
         <button onclick="showFunctionalityWithId('functionalityType8')" > local STT</button>
 
         <br><br>
-        <div id="functionalityType1" style="display:none">    @include('sections.functionalityType1')</div>
-        <div id="functionalityType2" style="display:none">    @include('sections.functionalityType2')</div>
-        <div id="functionalityType3" style="display:none">    @include('sections.ttsWebSpeech')</div>
-        <div id="functionalityType4" style="display:none">    @include('sections.sttWebSpeech')</div>
-        <div id="functionalityType5" style="display:none">    @include('sections.ttsGoogleApi')</div>
-        <div id="functionalityType6" style="display:none">    @include('sections.sttGoogleApi')</div>
-        <div id="functionalityType7" style="display:none">    @include('sections.localTts')</div>
-        <div id="functionalityType8" style="display:none">    @include('sections.localStt')</div>
+        <div id="functionalityType1" style="display:none">    @include('testSections.functionalityType1')</div>
+        <div id="functionalityType2" style="display:none">    @include('testSections.functionalityType2')</div>
+        <div id="functionalityType3" style="display:none">    @include('testSections.ttsWebSpeech')</div>
+        <div id="functionalityType4" style="display:none">    @include('testSections.sttWebSpeech')</div>
+        <div id="functionalityType5" style="display:none">    @include('testSections.ttsGoogleApi')</div>
+        <div id="functionalityType6" style="display:none">    @include('testSections.sttGoogleApi')</div>
+        <div id="functionalityType7" style="display:none">    @include('testSections.localTts')</div>
+        <div id="functionalityType8" style="display:none">    @include('testSections.localStt')</div>
 
     </div>
     </div>

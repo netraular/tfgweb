@@ -36,6 +36,7 @@
               <th></th>
               @endif
             </tr>
+            @if(!is_string(json_decode($history['results'])))
             @foreach(json_decode($history['results']) as $row)
             <tr>
               @foreach(array_keys((array)$row) as $col)
@@ -43,6 +44,7 @@
               @endforeach
             </tr>
             @endforeach
+            @endif
           </table>
         @elseif(!is_null($history['results']))
           {{$history['results']}}

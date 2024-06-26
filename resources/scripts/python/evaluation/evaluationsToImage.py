@@ -3,11 +3,11 @@ import numpy as np
 from datetime import datetime
 
 # Resultados obtenidos
-models = ['complexLlmToSql',  'llama38bToSql', 'codeqwen7bToSql']
-accuracy = [0.62,  0.66, 0.89]
-# precision = [1.00,  1.00, 1.00, 1.00]
-# recall = [0.62,  0.66, 0.89, 0.89]
-# f1_score = [0.76,  0.80, 0.94, 0.94]
+models = ['complexLlmToSql',  'llama38bToSql', 'codeqwen7bToSql','gpt3.5','Mistral']
+precision = [0.4,  0.53, 0.69, 0.72, 0.59]
+# acuracy = []
+# recall = []
+# f1_score = []
 
 # Configuración de la gráfica
 x = np.arange(len(models))  # la posición de las etiquetas en el eje x
@@ -16,7 +16,7 @@ width = 0.35  # el ancho de las barras
 fig, ax = plt.subplots(figsize=(10, 6))
 
 # Crear barras para cada métrica
-rects1 = ax.bar(x, accuracy, width, label='Accuracy')
+rects1 = ax.bar(x, precision, width, label='Precision')
 # rects2 = ax.bar(x + width, precision, width, label='Precision')
 # rects3 = ax.bar(x + 2*width, recall, width, label='Recall')
 # rects4 = ax.bar(x + 3*width, f1_score, width, label='F1 Score')

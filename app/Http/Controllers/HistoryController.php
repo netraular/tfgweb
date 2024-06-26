@@ -13,7 +13,7 @@ class HistoryController extends Controller
         $histories = AudioHistory::orderBy('id','desc')->get();
 
         // Retornar la vista 'history' con los datos obtenidos
-        return view('history/historyMainView', compact('histories'));
+        return view('history/audioHistory', compact('histories'));
     }
 
     public function showAssistantHistory(Request $request){
