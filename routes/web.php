@@ -19,7 +19,7 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-Route::match(['get', 'post'],'/test', [VirtualAssistantController::class, 'checkCorrectAnswers']);
+Route::match(['get', 'post'],'/checkCorrectAnswers', [VirtualAssistantController::class, 'checkCorrectAnswers']);
 
 
 Auth::routes();
