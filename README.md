@@ -1,66 +1,101 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Local Voice Assistant Natural Language to SQL
 
-## About Laravel
+This project is a comprehensive local voice assistant system, developed as a final year project for a degree in computer engineering. The main goal of the project is to provide a robust and efficient voice assistant that operates entirely offline, ensuring user privacy and data security.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The system consists of several key components including a web interface, a speech-to-text (STT) module, a text-to-speech (TTS) module, and natural language processing to SQL query conversion. These components work together to allow users to interact with the assistant using voice commands, which are then processed to perform various tasks such as querying a database.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Technologies Used
 
-## Learning Laravel
+**Web Interface - Laravel** 
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The web interface is built using Laravel, a PHP framework known for its elegant syntax and powerful tools for web application development. Laravel handles the backend operations, serving web pages, managing user inputs, and communicating with the other components of the system.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Speech-to-Text (STT) - WhisperAI** 
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+For converting speech to text, we use WhisperAI, an open-source model developed by OpenAI. WhisperAI is chosen for its high accuracy and capability to run efficiently on local hardware, ensuring all voice processing is done offline to protect user privacy.
 
-## Laravel Sponsors
+**Text-to-Speech (TTS) - CoquiTTS** 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+The text-to-speech functionality is powered by CoquiTTS with the XTTS v2 model. This module converts textual responses from the system into natural-sounding speech, enhancing user interaction with the assistant.
 
-### Premium Partners
+**Natural Language to SQL - Ollama with CodeQwen1.5** 
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+The conversion of natural language queries to SQL commands is handled by CodeQwen1.5, operated through Ollama. This allows users to ask questions in plain language and receive accurate, relevant data from the database.
 
-## Contributing
+**Other Technologies** 
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Bootstrap:** For the frontend design, ensuring a responsive and user-friendly interface.
 
-## Code of Conduct
+**MySQL:** Used as the database management system to store and retrieve data efficiently.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+## Project Structure
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The project is organized into the following directories:
+
+* /: Contains the Laravel web application code.
+* /resources/scripts/python: Python scripts for STT and TTS functionalities.
+* /resources/scripts/python/evaluation: Python scripts for creating llm evaluations.
+* /resources/llmModels: Pre-trained models for WhisperAI and CoquiTTS.
+* /resources/scripts/db: Database files and SQL scripts for setting up MySQL.
+## Installation
+
+**Prerequisites**
+
+PHP and Composer installed for Laravel.
+
+Python and pip for running scripts.
+
+MySQL server for database management.
+
+**1-Clone the repository:**
+
+```bash
+git clone https://github.com/username/local-voice-assistant.git
+cd local-voice-assistant
+```
+
+**2-Install Laravel dependencies:**
+
+```bash
+cd web
+composer install
+```
+    
+**3-Set up the environment file:**
+
+```bash
+cp .env.example .env
+```
+Update the .env file with your database credentials and other configurations.
+
+**4-Install Python dependencies:**
+```bash
+pip install -r requirements.txt
+```
+**5-Set up the database:**
+```bash
+mysql -u root -p < data/database.sql
+```
+**6-Run the Laravel server:**
+```bash
+php artisan serve
+```
+## Usage/Examples
+
+Once the setup is complete, navigate to http://localhost:8000 to access the web interface. The interface allows you to:
+
+**Test STT and TTS**: Upload audio files or record voice commands directly in the browser.
+
+**Perform SQL queries**: Use natural language to query the database and get results.
+
+**View query history**: Check previous interactions and their outcomes.
+
+
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
+
