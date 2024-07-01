@@ -36,8 +36,8 @@ The conversion of natural language queries to SQL commands is handled by CodeQwe
 The project is organized into the following directories:
 
 * /: Contains the Laravel web application code.
-* /app/Controllers: Contains the controllers of the web application.
-* /app/resources/views: Contains the view files of the web application.
+* /app/Http/Controllers: Contains the controllers of the web application.
+* /resources/views: Contains the view files of the web application.
 * /resources/scripts/python: Python scripts for STT and TTS functionalities.
 * /resources/scripts/python/evaluation: Python scripts for creating llm evaluations.
 * /resources/llmModels: Pre-trained models for natural language to sql generation.
