@@ -3,8 +3,8 @@ import numpy as np
 from datetime import datetime
 
 # Resultados obtenidos
-models = ['complexLlmToSql',  'llama38bToSql', 'codeqwen7bToSql','gpt3.5','Mistral']
-precision = [0.4,  0.53, 0.69, 0.72, 0.59]
+models = [ 'llama38bToSql', 'codeqwen7bToSql','gpt3.5','Mistral']
+precision = [ 0.53, 0.69, 0.72, 0.59]
 # acuracy = []
 # recall = []
 # f1_score = []

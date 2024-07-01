@@ -43,7 +43,7 @@ def calculate_rouge_scores(llm_ref, llm_candidate, cursor):
 
 # Obtener todos los valores distintos de llm
 def get_distinct_llms(cursor):
-    cursor.execute("SELECT DISTINCT llm FROM LlmTestAnswers")
+    cursor.execute("SELECT DISTINCT llm FROM LlmTestAnswers WHERE llm != 'complexLlmToSql'")
     llms = [row[0] for row in cursor.fetchall()]
     return llms
 
@@ -54,7 +54,7 @@ def plot_rouge_scores(rouge_scores, rouge_type):
     sorted_scores = [pair[1] for pair in sorted_pairs]
 
     # Crear la gráfica de barras
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     # Dibujar las barras ordenadas
     ax.barh(sorted_llms, sorted_scores, color='lightblue')
