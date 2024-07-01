@@ -40,18 +40,28 @@ class TtsController extends Controller
         $nombreArchivoAudio = date("tts-YmdHis");
         $idioma='es';
 
-        $scriptPath = resource_path().'/scripts/python/localTts.py';
+        // $scriptPath = resource_path().'/scripts/python/localTts.py';
 
+
+        // $process = new Process([
+        //     'sudo',
+        //     'python3',
+        //     $scriptPath,
+        //     escapeshellcmd($texto),
+        //     escapeshellcmd($nombreArchivoAudio),
+        //     $idioma
+        // ]);
 
         $process = new Process([
             'sudo',
-            'python3',
-            $scriptPath,
+            'tts',
+            '--text',
             escapeshellcmd($texto),
-            escapeshellcmd($nombreArchivoAudio),
-            $idioma
+            '--model_name',
+            'tts_models/es/css10/vits',
+            '--out_path',
+            storage_path("app/public/localTTS/$nombreArchivoAudio.mp3")
         ]);
-        
 
         $process->run();
         if (!$process->isSuccessful()) {
