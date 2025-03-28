@@ -1,18 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    
-
-
-
-
 <h2>Assistant history</h2>
-
 
 <table style="width:100%" class="table table-hover">
 @foreach($histories as $history)
   <thead class="thead-dark">
-    <tr >
+    <tr>
       <th style="width: 5%;">{{$history['id']}}</th>
       <th>{{$history['question']}}</th>
     </tr>
@@ -25,27 +19,41 @@
     <tr>
       <td></td>
       <td>
-        @if(!is_null($history['results']) and $history['results']!="Query voided" and $history['results']!="[]" and $history['results']!="Data too long for column." and $history['results']!="I don't know." and $history['results']!="Process time exceeded")
-          <table class="table-bordered">
-            <tr>
-              @if(isset(json_decode($history['results'])[0]))
-                @foreach(array_keys((array)json_decode($history['results'])[0]) as $key)
-                  <th>{{$key}}</th>
-                @endforeach
+        @if(!empty($history['results']) && 
+            $history['results'] != "Query voided" && 
+            $history['results'] != "[]" && 
+            $history['results'] != "Data too long for column." && 
+            $history['results'] != "I don't know." && 
+            $history['results'] != "Process time exceeded")
+          @php
+            $decodedResults = json_decode($history['results']);
+          @endphp
+          
+          @if(is_array($decodedResults) || is_object($decodedResults))
+            <table class="table-bordered">
+              @if(isset($decodedResults[0]))
+                <tr>
+                  @foreach(array_keys((array)$decodedResults[0]) as $key)
+                    <th>{{$key}}</th>
+                  @endforeach
+                </tr>
               @else
-              <th></th>
+                <tr><th></th></tr>
               @endif
-            </tr>
-            @if(!is_string(json_decode($history['results'])))
-            @foreach(json_decode($history['results']) as $row)
-            <tr>
-              @foreach(array_keys((array)$row) as $col)
-              <td>{{$row->$col}}</td>
+              
+              @foreach($decodedResults as $row)
+                @if(is_object($row) || is_array($row))
+                <tr>
+                  @foreach(array_keys((array)$row) as $col)
+                    <td>{{ is_object($row) ? $row->$col : $row[$col] }}</td>
+                  @endforeach
+                </tr>
+                @endif
               @endforeach
-            </tr>
-            @endforeach
-            @endif
-          </table>
+            </table>
+          @else
+            {{ $history['results'] }}
+          @endif
         @elseif(!is_null($history['results']))
           {{$history['results']}}
         @endif
@@ -53,10 +61,6 @@
     </tr>
   </tbody>
   <tr style="outline: thin solid">
-
 @endforeach
 </table>
-
-    @endsection
-
-    
+@endsection
