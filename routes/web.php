@@ -31,10 +31,10 @@ Route::match(['get', 'post'],'/assistant', [VirtualAssistantController::class, '
 Route::match(['get', 'post'],'/', [VirtualAssistantController::class, 'interactAssistant']);
 
 Route::match(['get', 'post'],'/testMenu', [VirtualAssistantController::class, 'testMenu'])->name('testMenu');
-Route::match(['get', 'post'],'/ttsApi', [TtsController::class, 'textToSpeechApi']);
-Route::match(['get', 'post'],'/sttApi', [SttController::class, 'speechToTextApi']);
-Route::match(['get', 'post'],'/ttsLocal', [TtsController::class, 'textToSpeechLocal']);
-Route::match(['get', 'post'],'/sttLocal', [SttController::class, 'speechToTextLocal']);
+// Route::match(['get', 'post'],'/ttsApi', [TtsController::class, 'textToSpeechApi']);
+// Route::match(['get', 'post'],'/sttApi', [SttController::class, 'speechToTextApi']);
+// Route::match(['get', 'post'],'/ttsLocal', [TtsController::class, 'textToSpeechLocal']);
+// Route::match(['get', 'post'],'/sttLocal', [SttController::class, 'speechToTextLocal']);
 
 Route::match(['get', 'post'],'/audioHistory', [HistoryController::class, 'showAudioHistory']);
 Route::match(['get', 'post'],'/assistantHistory', [HistoryController::class, 'showAssistantHistory']);

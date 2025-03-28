@@ -66,70 +66,259 @@ class VirtualAssistantController extends Controller
         }
     }
 
-    public function main(Request $request){
+    // public function main(Request $request)
+    // {
+    //     $texto = $request->texto;
 
+    //     $assistantLog = new AssistantHistory;
+    //     $assistantLog->question = $request->texto;
+    //     $assistantLog->save();
+
+    //     $scriptPath = resource_path('scripts/python/groq_llm.py'); 
+    //     $apiKey = env('GROQ_API_KEY');
+
+    //     if (!$apiKey) {
+    //          report(new \Exception('GROQ_API_KEY no encontrada en el archivo .env'));
+    //          return response()->json(['error' => 'Error de configuración del servidor.'], 500);
+    //     }
+
+    //     $process = new Process(
+    //         [
+    //             'python3',
+    //             $scriptPath,
+    //             escapeshellarg($texto),
+    //         ],
+    //         null,
+    //         ['GROQ_API_KEY' => $apiKey]
+    //     );
+
+
+
+    //     try {
+    //         $startTimer = microtime(true);
+    //         $process->mustRun(); // mustRun() lanza ProcessFailedException automáticamente si falla
+    //         $time_elapsed_secs = microtime(true) - $startTimer;
+    //         $answer = $process->getOutput();
+
+    //         // Limpiar saltos de línea (opcional, depende de si los necesitas)
+    //         $answer = trim(str_replace("\n", " ", $answer)); // trim() elimina espacios/saltos al inicio/final
+
+    //         $assistantLog->answerTime = $time_elapsed_secs;
+
+    //         // Truncar si es necesario ANTES de intentar guardar
+    //         if (mb_strlen($answer) >= 1000) { // Usa mb_strlen para strings multibyte
+    //             $answer = mb_substr($answer, 0, 995) . '...'; // Trunca dejando espacio para '...'
+    //             $assistantLog->extra = "Respuesta original truncada."; // Añade una nota
+    //         }
+    //         $assistantLog->answer = $answer;
+
+    //         $results = null; // Inicializa results
+
+    //         if ($answer !== "I don't know." && mb_strlen($answer) < 1000) { // Comprueba de nuevo por si fue truncado a vacío
+    //             $sql = $answer; // Asume que la respuesta es SQL
+    //             if ($this->checkSqlIsSafe($sql)) { // Asegúrate que esta función es robusta
+    //                 try {
+    //                     // ¡¡PRECAUCIÓN EXTREMA AL EJECUTAR SQL GENERADO POR IA!!
+    //                     // Considera usar bindings si es posible, o una validación MUY estricta.
+    //                     $resultsData = DB::select($sql);
+    //                     $resultsJson = json_encode($resultsData);
+
+    //                     if (mb_strlen($resultsJson) >= 1000) {
+    //                         $results = mb_substr($resultsJson, 0, 995) . '...';
+    //                         $assistantLog->extra = ($assistantLog->extra ?? '') . " Resultados JSON truncados.";
+    //                     } else {
+    //                          $results = $resultsJson;
+    //                     }
+    //                     $assistantLog->results = $results;
+
+    //                 } catch (\Illuminate\Database\QueryException $e) {
+    //                     // Error específico de base de datos
+    //                     report($e); // Reporta el error real
+    //                     $results = "SQL query failed: " . $e->getMessage();
+    //                     // Limita la longitud del mensaje de error si es necesario
+    //                      if (mb_strlen($results) >= 1000) {
+    //                          $results = mb_substr($results, 0, 995) . '...';
+    //                      }
+    //                     $assistantLog->results = $results; // Guarda el mensaje de error
+
+    //                 } catch (\Throwable $e) {
+    //                     // Otro tipo de error
+    //                     report($e);
+    //                     $results = "An unexpected error occurred during SQL execution.";
+    //                     $assistantLog->results = $results;
+    //                 }
+    //             } else {
+    //                 $results = "Query voided (unsafe)";
+    //                 $assistantLog->extra = ($assistantLog->extra ?? '') . " " . $results;
+    //             }
+    //         } else {
+    //             // Si la respuesta fue "I don't know." o fue truncada antes
+    //             $assistantLog->extra = ($assistantLog->extra ?? '') . " No SQL query executed.";
+    //         }
+
+    //         $assistantLog->save(); // Guarda la respuesta, resultados, tiempo, etc.
+
+    //         // Devuelve la respuesta y los resultados (o mensajes de error)
+    //         return response()->json([
+    //             'answer' => $assistantLog->answer, // Devuelve la respuesta (posiblemente truncada)
+    //             'results' => $results // Devuelve los resultados JSON, mensaje de error, o null
+    //         ]);
+
+    //     } catch (ProcessFailedException $exception) {
+    //         // El proceso Python falló
+    //         report($exception); // Reporta la excepción completa
+
+    //         // Guarda el error en el log
+    //         $assistantLog->answer = "Failed to execute script.";
+    //         // Guarda la salida de error del script si está disponible
+    //         $assistantLog->extra = "Error: " . $exception->getProcess()->getErrorOutput();
+    //          if (mb_strlen($assistantLog->extra) >= 1000) {
+    //              $assistantLog->extra = mb_substr($assistantLog->extra, 0, 995) . '...';
+    //          }
+    //         $assistantLog->save();
+
+    //         return response()->json([
+    //              'error' => 'El script del asistente falló.',
+    //              'details' => $exception->getProcess()->getErrorOutput() // Opcional: no exponer detalles sensibles en producción
+    //              ], 500);
+    //     }
+    // }
+
+    public function main(Request $request)
+    {
         $texto = $request->texto;
-
-        $assistantLog = new assistantHistory;
-        $assistantLog->question=$request->texto;
-        $assistantLog->save();
-
-        $scriptPath = resource_path().'/scripts/python/llama3api.py';
-
-
-        $process = new Process([
-            'sudo',
-            'python3',
-            $scriptPath,
-            escapeshellcmd($texto),
-        ]);
-        
-        $startTimer = microtime(true);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+    
+        $assistantLog = new AssistantHistory;
+        $assistantLog->question = $request->texto;
+        // Consider saving only *after* successful script execution or at the very end
+        // $assistantLog->save(); // Maybe move this
+    
+        $scriptPath = resource_path('scripts/python/groq_llm.py'); // Ensure this path is correct
+        $apiKey = env('GROQ_API_KEY');
+    
+        if (!$apiKey) {
+             report(new \Exception('GROQ_API_KEY no encontrada en el archivo .env'));
+             // Save the log indicating the config error before returning
+             $assistantLog->answer = "Server configuration error.";
+             $assistantLog->extra = "GROQ_API_KEY missing.";
+             $assistantLog->save();
+             return response()->json(['error' => 'Error de configuración del servidor.'], 500);
         }
-        $time_elapsed_secs = microtime(true) - $startTimer;
-        $answer = $process->getOutput();
-
-        $answer=str_replace("\n","",$answer);
-        $assistantLog->answerTime=$time_elapsed_secs;
-        if(strlen($answer)>=1000){
-            $answer="Data too long for column.";
-        }
-        $assistantLog->answer=$answer;
-        $assistantLog->save();
-        
-        
-        if($answer!="I don't know."){
-            $sql=$answer;
-            if($this->checkSqlIsSafe($sql)){
-                try {
-                    $results = DB::select($sql);
-                } catch (\Throwable $e) {
-            
-                    // Optionally, set $results to a default value or null
-                    $results = "SQL query failed";
-                }
-                if(strlen(json_encode($results))>=1000){
-                    $results="Data too long for column.";
-                    $assistantLog->results=$results;
-                    $assistantLog->save();
-                }else{
-                    $assistantLog->results=json_encode($results);
-                    $assistantLog->save();
-                }
-            }else{
-                $results="Query voided";
-                $assistantLog->extra=$results;
-                $assistantLog->save();
+    
+        $process = new Process(
+            [
+                'python3',
+                $scriptPath,
+                escapeshellarg($texto), // Use escapeshellarg like before
+            ],
+            null,
+            ['GROQ_API_KEY' => $apiKey]
+        );
+    
+        $answer = null;
+        $results = null;
+        $time_elapsed_secs = 0;
+    
+        try {
+            $startTimer = microtime(true);
+            // Use mustRun() inside try-catch or run() + check + throw inside try-catch
+            $process->mustRun(); // This throws ProcessFailedException if it fails
+            $time_elapsed_secs = microtime(true) - $startTimer;
+            $answer = $process->getOutput();
+    
+            // Clean and prepare answer
+            $answer = trim(str_replace("\n", " ", $answer)); // Use trim like before
+            $assistantLog->answerTime = $time_elapsed_secs;
+    
+            // Use mb_strlen and better truncation
+            if (mb_strlen($answer) >= 1000) {
+                $answer = mb_substr($answer, 0, 995) . '...';
+                $assistantLog->extra = "Respuesta original truncada.";
             }
-        }else{
-            $assistantLog->extra=$answer;
-            $assistantLog->save();
+            $assistantLog->answer = $answer; // Set answer on the log
+    
+    
+            // --- SQL Execution Part (moved inside try if Python succeeded) ---
+            if ($answer !== "I don't know." && mb_strlen($answer) < 1000 && $answer !== (mb_substr($answer, 0, 995) . '...')) { // Check it wasn't truncated to empty/useless
+                $sql = $answer;
+                if ($this->checkSqlIsSafe($sql)) {
+                    try {
+                        $resultsData = DB::select($sql);
+                        $resultsJson = json_encode($resultsData);
+    
+                        if (mb_strlen($resultsJson) >= 1000) {
+                            $results = mb_substr($resultsJson, 0, 995) . '...';
+                            $assistantLog->extra = ($assistantLog->extra ?? '') . " Resultados JSON truncados.";
+                        } else {
+                             $results = $resultsJson;
+                        }
+                        $assistantLog->results = $results;
+    
+                    } catch (\Illuminate\Database\QueryException $e) {
+                        report($e); // Log the DB error
+                        $errorMsg = "SQL query failed: " . $e->getMessage();
+                         if (mb_strlen($errorMsg) >= 1000) {
+                             $errorMsg = mb_substr($errorMsg, 0, 995) . '...';
+                         }
+                        $results = $errorMsg; // Provide error detail in results
+                        $assistantLog->results = $results;
+    
+                    } catch (\Throwable $e) { // Catch other potential errors during DB interaction
+                        report($e);
+                        $results = "An unexpected error occurred during SQL execution.";
+                        $assistantLog->results = $results;
+                    }
+                } else {
+                    $results = "Query voided (unsafe)";
+                    $assistantLog->extra = ($assistantLog->extra ?? '') . " " . $results;
+                    $assistantLog->results = null; // Or set results field accordingly
+                }
+            } else {
+                 $assistantLog->extra = ($assistantLog->extra ?? '') . " No SQL query executed (Answer was 'I don't know' or truncated).";
+                 $results = null; // Ensure results is null if no query run
+            }
+            // --- End SQL Execution Part ---
+    
+            $assistantLog->save(); // Save everything gathered successfully
+    
+            // Return structured JSON object
+            return response()->json([
+                'answer' => $assistantLog->answer, // Return the processed answer from the log
+                'results' => $results           // Return results (JSON, error message, or null)
+            ]);
+    
+        } catch (ProcessFailedException $exception) {
+            // *** CATCH THE PYTHON SCRIPT ERROR HERE ***
+            report($exception);
+    
+            $assistantLog->answerTime = microtime(true) - $startTimer; // Log time even if failed
+            $assistantLog->answer = "Failed to execute script.";
+            $errorOutput = $exception->getProcess()->getErrorOutput();
+            $assistantLog->extra = "Error: " . (mb_strlen($errorOutput) >= 900 ? mb_substr($errorOutput, 0, 895) . '...' : $errorOutput); // Truncate error output if needed
+            $assistantLog->save(); // Save the failure state
+    
+            // *** Return a JSON error response ***
+            return response()->json([
+                 'error' => 'El script del asistente falló.',
+                 // Avoid sending raw error output to the client in production
+                 // 'details' => $exception->getProcess()->getErrorOutput()
+                 'details' => 'Server-side script execution failed.' // Generic message for client
+                 ], 500);
+        } catch (\Throwable $e) {
+            // Catch any other unexpected errors during the process
+            report($e);
+            // Save minimal error state if possible
+            if ($assistantLog->exists) { // Check if already saved once
+               $assistantLog->extra = ($assistantLog->extra ?? '') . ' Unexpected controller error: ' . $e->getMessage();
+               $assistantLog->save();
+            } else {
+                // Log initial question if possible before failing hard
+                 $assistantLog->answer = "Unexpected controller error.";
+                 $assistantLog->extra = $e->getMessage();
+                 $assistantLog->save();
+            }
+            return response()->json(['error' => 'An unexpected server error occurred.'], 500);
         }
-
-        return response()->json([$answer,$results]);
     }
 
     public function interactAssistant(Request $request){
@@ -145,10 +334,9 @@ class VirtualAssistantController extends Controller
             $assistantLog->llm=$llmName;
             $assistantLog->save();
     
-            $scriptPath = resource_path().'/scripts/python/llmApi.py';
+            $scriptPath = resource_path().'/scripts/python/groq_llm.py';
     
             $process = new Process([
-                'sudo',
                 'python3',
                 $scriptPath,
                 escapeshellcmd($question->question),
