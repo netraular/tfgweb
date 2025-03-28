@@ -84,7 +84,18 @@
         <nav id="sidebar" class="sidebar d-lg-block navbar-collapse">
             <div id="sidenav-1" class="sidenav d-flex flex-column" role="navigation">
                 <a class="d-flex justify-content-center py-4" href="/">
-                    <img src="{{ asset('images/netshibaLogoText.png') }}" alt="UAB Logo" height="40"/>
+                <div style="
+                    font-family: 'Arial Black', sans-serif;
+                    font-size: 30px;
+                    font-weight: bold;
+                    background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+                    display: inline-block;
+                    line-height: 40px;
+                ">TFG UAB</div>                
                 </a>
                 <div class="position-sticky flex-grow-1">
                     <div class="list-group list-group-flush mx-3 mt-4">

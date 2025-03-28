@@ -58,7 +58,7 @@ class TtsController extends Controller
             '--text',
             escapeshellcmd($texto),
             '--model_name',
-            'tts_models/es/css10/vits',
+            'tts_models/es/css10/vits', //tts_models/es/mai/tacotron2-DDC
             '--out_path',
             storage_path("app/public/localTTS/$nombreArchivoAudio.mp3")
         ]);
