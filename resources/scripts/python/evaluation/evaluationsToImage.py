@@ -3,8 +3,8 @@ import numpy as np
 from datetime import datetime
 
 # Resultados obtenidos
-models = [ 'llama38bToSql', 'codeqwen7bToSql','gpt3.5','Mistral']
-precision = [ 0.53, 0.69, 0.72, 0.59]
+models = [ 'medium','small','base','tiny']
+precision = [ 21.6,9.3,4.5,2.1]
 # acuracy = []
 # recall = []
 # f1_score = []
@@ -16,15 +16,15 @@ width = 0.35  # el ancho de las barras
 fig, ax = plt.subplots(figsize=(10, 6))
 
 # Crear barras para cada métrica
-rects1 = ax.bar(x, precision, width, label='Precision')
+rects1 = ax.bar(x, precision, width, label='Tiempo de respuesta (segundos)')
 # rects2 = ax.bar(x + width, precision, width, label='Precision')
 # rects3 = ax.bar(x + 2*width, recall, width, label='Recall')
 # rects4 = ax.bar(x + 3*width, f1_score, width, label='F1 Score')
 
 # Añadir etiquetas, título y leyenda con letra más grande
 ax.set_xlabel('Modelos', fontsize=16)
-ax.set_ylabel('Scores', fontsize=16)
-ax.set_title('Comparación de Métricas entre Modelos', fontsize=18)
+ax.set_ylabel('Tiempo de respuesta (segundos)', fontsize=16)
+ax.set_title('Comparativa de tiempo de respuesta entre modelos de whisper', fontsize=18)
 ax.set_xticks(x)
 ax.set_xticklabels(models, fontsize=14)
 ax.legend(fontsize=14)
