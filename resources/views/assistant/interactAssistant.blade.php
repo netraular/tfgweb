@@ -20,7 +20,7 @@
         <!-- Botón para grabar audio (puede permanecer oculto si no se usa activamente) -->
         <button id="upload_audio" hidden onclick="/* uploadAudio() */">Subir Audio</button>
     </div>
-    <input type="text" class="form-control" id="promptInput" placeholder="¿Que columnas tiene la tabla (Proyecto/Material/Trabajador/TrabajadoresDelProyecto) ?">
+    <input type="text" class="form-control" id="promptInput" placeholder="Dime el nombre de los primeros 10 trabajadores. ¿Cuantos proyectos/materiales hay?">
     <button id="startAssistantButton" class="btn btn-outline-secondary" type="button" onclick="startAssistant()"><i class="bi bi-arrow-up-square-fill fs-4"></i></button>
     <div id="loading-spinner3" class="spinner-border" role="status" style="border-radius: 50%;display: none;">
         <span class="visually-hidden">Cargando...</span>

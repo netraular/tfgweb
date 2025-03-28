@@ -12,7 +12,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Models\assistantHistory;
 use App\Models\llmTest;
 use App\Models\llmTestAnswers;
-
+use Log;
 use Illuminate\Support\Facades\DB;
 
 class VirtualAssistantController extends Controller
@@ -66,123 +66,6 @@ class VirtualAssistantController extends Controller
         }
     }
 
-    // public function main(Request $request)
-    // {
-    //     $texto = $request->texto;
-
-    //     $assistantLog = new AssistantHistory;
-    //     $assistantLog->question = $request->texto;
-    //     $assistantLog->save();
-
-    //     $scriptPath = resource_path('scripts/python/groq_llm.py'); 
-    //     $apiKey = env('GROQ_API_KEY');
-
-    //     if (!$apiKey) {
-    //          report(new \Exception('GROQ_API_KEY no encontrada en el archivo .env'));
-    //          return response()->json(['error' => 'Error de configuración del servidor.'], 500);
-    //     }
-
-    //     $process = new Process(
-    //         [
-    //             'python3',
-    //             $scriptPath,
-    //             escapeshellarg($texto),
-    //         ],
-    //         null,
-    //         ['GROQ_API_KEY' => $apiKey]
-    //     );
-
-
-
-    //     try {
-    //         $startTimer = microtime(true);
-    //         $process->mustRun(); // mustRun() lanza ProcessFailedException automáticamente si falla
-    //         $time_elapsed_secs = microtime(true) - $startTimer;
-    //         $answer = $process->getOutput();
-
-    //         // Limpiar saltos de línea (opcional, depende de si los necesitas)
-    //         $answer = trim(str_replace("\n", " ", $answer)); // trim() elimina espacios/saltos al inicio/final
-
-    //         $assistantLog->answerTime = $time_elapsed_secs;
-
-    //         // Truncar si es necesario ANTES de intentar guardar
-    //         if (mb_strlen($answer) >= 1000) { // Usa mb_strlen para strings multibyte
-    //             $answer = mb_substr($answer, 0, 995) . '...'; // Trunca dejando espacio para '...'
-    //             $assistantLog->extra = "Respuesta original truncada."; // Añade una nota
-    //         }
-    //         $assistantLog->answer = $answer;
-
-    //         $results = null; // Inicializa results
-
-    //         if ($answer !== "I don't know." && mb_strlen($answer) < 1000) { // Comprueba de nuevo por si fue truncado a vacío
-    //             $sql = $answer; // Asume que la respuesta es SQL
-    //             if ($this->checkSqlIsSafe($sql)) { // Asegúrate que esta función es robusta
-    //                 try {
-    //                     // ¡¡PRECAUCIÓN EXTREMA AL EJECUTAR SQL GENERADO POR IA!!
-    //                     // Considera usar bindings si es posible, o una validación MUY estricta.
-    //                     $resultsData = DB::select($sql);
-    //                     $resultsJson = json_encode($resultsData);
-
-    //                     if (mb_strlen($resultsJson) >= 1000) {
-    //                         $results = mb_substr($resultsJson, 0, 995) . '...';
-    //                         $assistantLog->extra = ($assistantLog->extra ?? '') . " Resultados JSON truncados.";
-    //                     } else {
-    //                          $results = $resultsJson;
-    //                     }
-    //                     $assistantLog->results = $results;
-
-    //                 } catch (\Illuminate\Database\QueryException $e) {
-    //                     // Error específico de base de datos
-    //                     report($e); // Reporta el error real
-    //                     $results = "SQL query failed: " . $e->getMessage();
-    //                     // Limita la longitud del mensaje de error si es necesario
-    //                      if (mb_strlen($results) >= 1000) {
-    //                          $results = mb_substr($results, 0, 995) . '...';
-    //                      }
-    //                     $assistantLog->results = $results; // Guarda el mensaje de error
-
-    //                 } catch (\Throwable $e) {
-    //                     // Otro tipo de error
-    //                     report($e);
-    //                     $results = "An unexpected error occurred during SQL execution.";
-    //                     $assistantLog->results = $results;
-    //                 }
-    //             } else {
-    //                 $results = "Query voided (unsafe)";
-    //                 $assistantLog->extra = ($assistantLog->extra ?? '') . " " . $results;
-    //             }
-    //         } else {
-    //             // Si la respuesta fue "I don't know." o fue truncada antes
-    //             $assistantLog->extra = ($assistantLog->extra ?? '') . " No SQL query executed.";
-    //         }
-
-    //         $assistantLog->save(); // Guarda la respuesta, resultados, tiempo, etc.
-
-    //         // Devuelve la respuesta y los resultados (o mensajes de error)
-    //         return response()->json([
-    //             'answer' => $assistantLog->answer, // Devuelve la respuesta (posiblemente truncada)
-    //             'results' => $results // Devuelve los resultados JSON, mensaje de error, o null
-    //         ]);
-
-    //     } catch (ProcessFailedException $exception) {
-    //         // El proceso Python falló
-    //         report($exception); // Reporta la excepción completa
-
-    //         // Guarda el error en el log
-    //         $assistantLog->answer = "Failed to execute script.";
-    //         // Guarda la salida de error del script si está disponible
-    //         $assistantLog->extra = "Error: " . $exception->getProcess()->getErrorOutput();
-    //          if (mb_strlen($assistantLog->extra) >= 1000) {
-    //              $assistantLog->extra = mb_substr($assistantLog->extra, 0, 995) . '...';
-    //          }
-    //         $assistantLog->save();
-
-    //         return response()->json([
-    //              'error' => 'El script del asistente falló.',
-    //              'details' => $exception->getProcess()->getErrorOutput() // Opcional: no exponer detalles sensibles en producción
-    //              ], 500);
-    //     }
-    // }
 
     public function main(Request $request)
     {
@@ -269,7 +152,7 @@ class VirtualAssistantController extends Controller
                         $assistantLog->results = $results;
                     }
                 } else {
-                    $results = "Query voided (unsafe)";
+                    $results = "Error.";
                     $assistantLog->extra = ($assistantLog->extra ?? '') . " " . $results;
                     $assistantLog->results = null; // Or set results field accordingly
                 }
@@ -417,7 +300,7 @@ class VirtualAssistantController extends Controller
                         $llmTestAnswer->save();
                     }else{
                         $extra="Query voided";
-                        $llmTestAnswer->extra=$extra;
+                        $llmTestAnswer->extra="$extra";
                         $llmTestAnswer->save();
                     }
                     break;
@@ -558,39 +441,80 @@ class VirtualAssistantController extends Controller
     }
 
 
-    public function checkSqlIsSafe($sql){
-        $safe=true;
-        if(str_contains($sql, 'DELETE')){
-            $safe=false;
+    public function checkSqlIsSafe(string $sql): bool
+    {
+        // 1. Normalizar y limpiar un poco el SQL (quitar espacios extra al inicio/fin)
+        $trimmedSql = trim($sql);
+        $sqlLower = strtolower($trimmedSql);
+
+        // 2. Asegurarse de que EMPIEZA con SELECT (ignorando espacios iniciales)
+        // Usamos una expresión regular para ser un poco más robustos que solo strpos
+        // ^\s* : inicio de línea seguido de cero o más espacios
+        // SELECT : la palabra clave SELECT
+        // \s+ : uno o más espacios después de SELECT
+        // i : case-insensitive
+        if (!preg_match('/^\s*SELECT\s+/i', $trimmedSql)) {
+            Log::debug("SQL no empieza con SELECT: " . $sql);
+            return false;
         }
-        if(str_contains($sql, 'UPDATE')){
-            $safe=false;
+
+        // 3. Buscar palabras clave absolutamente prohibidas (case-insensitive)
+        $forbiddenKeywords = [
+            'delete', 'update', 'truncate', 'insert', 'alter', 'add', 'drop',
+            'commit', 'rollback', 'set', 'create', 'grant', 'revoke', 'use',
+            'exec', 'execute', 'information_schema', 'schema_name',
+            'pg_sleep', 'sleep', 'benchmark', // Funciones peligrosas específicas de BD
+            '--',  '/*', '*/' // Intentos de comentar o terminar la consulta prematuramente (básico)
+        ];
+
+        foreach ($forbiddenKeywords as $keyword) {
+            // Usamos \b para buscar palabras completas y evitar falsos positivos (ej: 'update' en 'nonupdateable')
+            // aunque esto no es perfecto contra ofuscación.
+            if (preg_match('/\b' . preg_quote($keyword, '/') . '\b/i', $sqlLower)) {
+                Log::debug("Palabra clave prohibida '$keyword' encontrada en SQL: " . $sql);
+                return false;
+            }
+            // Comprobación simple adicional por si \b falla con caracteres especiales
+             if (str_contains($sqlLower, $keyword)) {
+                 // Revisión adicional menos precisa pero más amplia
+                 // Cuidado con falsos positivos (ej: 'information_schema' en un string literal)
+                 // Para este caso específico, si la palabra clave está en cualquier lugar, lo bloqueamos.
+                 Log::debug("Subcadena prohibida '$keyword' encontrada en SQL: " . $sql);
+                 return false;
+             }
         }
-        if(str_contains($sql, 'TRUNCATE')){
-            $safe=false;
+
+        // 4. Extraer nombres de tablas después de FROM y JOIN
+        // Esta regex es SIMPLIFICADA. No manejará correctamente todos los casos de SQL complejo
+        // (subconsultas en FROM/JOIN, alias complejos, comentarios entre palabras clave, etc.)
+        // \b(?:FROM|JOIN)\s+ : Busca la palabra FROM o JOIN seguida de espacios
+        // (?:[\w`]+\.)? : Opcionalmente captura un prefijo de esquema/base de datos (ej: `db`. o schema.) - no lo guardamos
+        // ([\w`]+) : Captura el nombre de la tabla (letras, números, _, `) - ESTO ES LO QUE QUEREMOS
+        // \b : Límite de palabra
+        // i : Case-insensitive
+        preg_match_all('/\b(?:FROM|JOIN)\s+(?:[\w`]+\.)?([\w`]+)\b/i', $trimmedSql, $matches);
+
+        if (empty($matches[1])) {
+            // Si es un SELECT pero no encontramos tablas después de FROM/JOIN, es sospechoso o inválido
+            Log::debug("No se pudieron extraer tablas de FROM/JOIN en SQL: " . $sql);
+            return false;
         }
-        if(str_contains($sql, 'INSERT')){
-            $safe=false;
+
+        $extractedTables = array_map('strtolower', array_unique($matches[1])); // Nombres de tabla únicos en minúsculas
+
+        // 5. Verificar si TODAS las tablas extraídas están en la lista permitida
+        $allowedTables = ['material', 'proyecto', 'trabajador', 'trabajadoresdelproyecto']; // Lista permitida en minúsculas
+
+        foreach ($extractedTables as $table) {
+             // Quitamos backticks si los hubiera (común en MySQL)
+             $tableNameClean = trim($table, '`');
+            if (!in_array($tableNameClean, $allowedTables)) {
+                Log::debug("Tabla no permitida '$tableNameClean' encontrada en SQL: " . $sql);
+                return false; // Encontramos una tabla no permitida
+            }
         }
-        if(str_contains($sql, 'ALTER')){
-            $safe=false;
-        }
-        if(str_contains($sql, 'ADD')){
-            $safe=false;
-        }
-        if(str_contains($sql, 'DROP')){
-            $safe=false;
-        }
-        if(str_contains($sql, 'COMMIT')){
-            $safe=false;
-        }
-        if(str_contains($sql, 'SET')){
-            $safe=false;
-        }
-        
-        if(!str_contains($sql, 'SELECT')){
-            $safe=false;
-        }
-        return $safe;
+
+        // 6. Si pasó todas las verificaciones, asumimos que es "segura" según nuestras reglas limitadas
+        return true;
     }
 }
