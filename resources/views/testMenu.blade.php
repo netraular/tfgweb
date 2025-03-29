@@ -6,7 +6,7 @@
 <div class="album py-5 bg-light">
     <div class="container">
    
-    Esta es la web del tfg de Raúl Aquilué. Puede que la web que estés buscando sea esta? <a href="http://eco2.netshiba.com"> hack4good </a>
+    Pruebas de los diferentes componentes de la web. Consultas en local esperadas, transcripción de texto a audio y audio a texto tanto en el cliente, como en el servidor local como mediante api.
     <hr>
 
     <div class="row">
